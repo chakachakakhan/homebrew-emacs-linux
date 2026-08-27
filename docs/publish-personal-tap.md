@@ -75,6 +75,24 @@ Then complete the unchecked interactive items in `docs/testing.md`. A green
 GitHub Actions run is useful evidence, but it does not replace the Wayland,
 desktop-launcher, clipboard, `emacsclient`, package, and uninstall checks.
 
+### Retest on this development machine
+
+During preparation, this machine tapped the local repository folder under the
+public tap name. After the GitHub push, replace that local tap with the real
+GitHub tap before claiming the published install was tested:
+
+```bash
+brew uninstall emacs-pgtk
+brew untap chakachakakhan/emacs-linux
+brew tap chakachakakhan/emacs-linux
+brew trust --tap chakachakakhan/emacs-linux
+brew install emacs-pgtk
+just verify
+```
+
+This rebuilds Emacs from the GitHub copy. It does not remove `~/.emacs.d`,
+`~/.config/emacs`, or other personal Emacs configuration.
+
 ## 5. Make later changes on a branch
 
 Keep `main` as the version people can install. For later work:
