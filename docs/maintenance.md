@@ -2,49 +2,54 @@
 
 ## Release flow
 
-1. Confirm a new stable Emacs release in the official
-   [GNU archive](https://ftp.gnu.org/gnu/emacs/), including its detached
-   signature.
-2. Verify the signature locally using the documented GNU maintainer key and
-   calculate SHA-256 independently. Do not copy a checksum from an untrusted
-   release announcement.
-3. Update `url`, `mirror`, and `sha256` in the formula.
-4. Review the new release's `INSTALL`, `NEWS`, `PROBLEMS`, and `configure
-   --help`; do not assume options are unchanged.
-5. Build and run the full local Stage 1 checklist.
-6. Push the update to the maintainer's personal fork and let both CI
-   architectures finish.
-7. Review logs and artifacts before opening any UBlue PR.
-8. In the experimental tap, allow its existing bump/test-bot workflows to
-   validate and bottle the formula. Do not add a competing release bot.
-9. Publish only after human review of the diff and test evidence.
+1. Confirm the next stable GNU Emacs release and verify its detached signature
+   using the documented GNU maintainer key.
+2. Update the source URL, mirror, checksum, and build options in
+   `Formula/emacs-pgtk.rb` after reviewing that release’s `INSTALL`, `NEWS`,
+   `PROBLEMS`, and `configure --help`.
+3. Run the local formula checks and the complete Stage 1 test plan.
+4. Run the manually triggered `Build Linux cask artifacts` workflow. It builds
+   x86-64 and ARM64 assets, records provenance, and uploads the archives and
+   checksums as workflow artifacts. It does not publish a release.
+5. Download and review the archives, manifests, dynamic-linker output, and
+   smoke-test results. Create the GitHub release manually only after that
+   review, using the immutable tag `emacs-<version>-<artifact-revision>` and
+   both architecture archives plus a combined `SHA256SUMS` file.
+6. Copy the reviewed per-architecture checksums into the cask candidate and
+   move it to `Casks/emacs-app-linux.rb`. The mechanical replacement can be
+   checked with `scripts/update-cask-checksums.sh`.
+7. Run cask style/audit and install, upgrade, launch, and uninstall tests from
+   the published release.
+8. Open the UBlue experimental-tap PR with the cask, evidence, and a concise
+   maintenance commitment.
+
+The cask’s artifact revision is separate from the GNU version. Increment it
+when the source version is unchanged but the release archive or build recipe
+changes.
 
 ## Automation boundary
 
-Automation should detect and propose routine version/checksum changes and run
-tests. It should not silently publish a release, push to UBlue, or promote a
-package. Emacs feature flags, new dependencies, PGTK changes, and native-comp
-changes always require human review.
+The workflow is manually dispatched and does not run on every push. It builds
+and uploads reviewable artifacts but does not publish a GitHub release, push to
+UBlue, open pull requests, or silently change the cask checksum.
 
-The standalone workflow in this repository has only `contents: read`; it cannot
-create releases or modify the repository. That is intentional during personal
-testing.
+Routine version detection and checksum updates can be automated later, but
+changes to Emacs feature flags, dependencies, PGTK behavior, and native
+compilation always require human review.
 
 ## Failure and rollback
 
-- Keep the previous known-good formula commit and bottle available.
-- If a release fails local or CI tests, do not weaken the test to make it green;
-  inspect `config.log`, Homebrew linkage output, and the smoke-test failure.
-- If an already-published experimental update is broken, revert the small
-  version update or mark the package disabled with a clear reason. Coordinate
-  the exact mechanism with UBlue maintainers.
-- Never replace an artifact at an existing release URL. Publish a new build
-  revision and new checksums.
+- Never replace files at an existing release URL or tag.
+- If a build fails, inspect the build log, linker output, manifest, and smoke
+  test instead of weakening the check.
+- Keep the last known-good cask checksum and release available while testing a
+  new artifact revision.
+- If an experimental-tap update is broken, prepare a small revert or disable
+  change for maintainer review; do not hide the failure in the test suite.
 
 ## Human responsibilities
 
-Tahir Khan remains responsible for GitHub authentication, repository/fork
-ownership, pushes, pull requests, release approval, maintainer communication,
-and the claim that a platform was tested. CI evidence supports that judgment;
-it does not replace it.
-
+The maintainer remains responsible for GitHub authentication, repository
+settings, release publication, UBlue pull requests, maintainer communication,
+and claims about platforms that were tested. CI produces evidence; it does not
+replace those decisions.

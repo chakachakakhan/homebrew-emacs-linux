@@ -17,6 +17,34 @@ The standalone CI runs the source build and smoke test on GitHub's x86-64 and
 ARM64 Ubuntu runners. A future experimental-tap PR will additionally run that
 repository's own `brew test-bot` workflow and produce bottle artifacts.
 
+## Cask artifact checks
+
+After `scripts/package-cask-artifact.sh` creates a local archive, inspect it
+before using its checksum in the cask:
+
+```bash
+tar -tzf dist/emacs-pgtk-31.1-linux-x86_64.tar.gz
+tar -xzf dist/emacs-pgtk-31.1-linux-x86_64.tar.gz -C /tmp
+/tmp/emacs-pgtk-31.1-linux-x86_64/bin/emacs --batch --quick --eval \
+  '(message "%s" emacs-version)'
+```
+
+Verify all of the following for each architecture:
+
+- `BUILD-MANIFEST.json` parses and names the official GNU source checksum;
+- the portable dumper image is present and the relative executable link works;
+- no Homebrew receipt or SBOM is included in the payload;
+- the launcher resolves its own archive path and preserves `XDG_DATA_DIRS`;
+- the archive contains the four desktop files, six application icons, command
+  binaries, and man pages;
+- `readelf -d`/`ldd` show no missing runtime libraries;
+- the headless smoke test, native compilation, and GUI launch pass;
+- the archive works from a clean Caskroom path before publishing.
+
+The release workflow produces the assets but does not make an unreviewed cask
+installable. The cask candidate stays under `proposals/` until those checks and
+the independent checksums are complete.
+
 ## Stage 1: local Bluefin x86-64
 
 - [x] `./scripts/check-local.sh`
@@ -50,6 +78,7 @@ Capture `M-x report-emacs-bug`'s build summary or evaluate
 | Source and checksum | Official GNU Emacs 31.1 archive | SHA-256 matched `1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586` |
 | Personal tap discovery | Local Git remote tapped as `chakachakakhan/emacs-linux` | Passed; Homebrew 6 required and accepted explicit `brew trust --tap` |
 | Source build/install | Bluefin 20260824 (`dakota-nvidia-gaming`), x86-64, Homebrew 6.0.19 | Passed through `brew install emacs-pgtk`; 6,009 files, 290.8 MB, approximately 6 minutes |
+| Cask archive packaging | Same machine, x86-64 | Packaging and archive-structure checks passed; the final executable smoke test must be rerun after restoring the complete formula runtime dependency set |
 | Syntax and style | Same machine | Passed; ShellCheck was not installed and was explicitly skipped |
 | Formula test | Same machine | Passed |
 | Feature/native-compile smoke test | Same machine | Passed on GNU Emacs 31.1; created a real `.eln` file |
@@ -98,6 +127,16 @@ and recommends the ordinary GTK/X build for X11-only systems.
 - [ ] update and rollback procedure rehearsed
 - [ ] maintainer commitment stated
 - [ ] known PGTK/X11 limitations documented
+
+## Release-backed cask gate
+
+- [x] cask-shaped candidate follows current UBlue Linux cask structure
+- [x] release workflow builds both Linux architectures
+- [x] local archive helper records source provenance and emits checksums
+- [ ] first GitHub release assets published and independently reviewed
+- [ ] per-architecture checksums copied into `Casks/emacs-app-linux.rb`
+- [ ] cask installs from the published release without a source rebuild
+- [ ] cask upgrade, GUI launch, `emacsclient`, and uninstall tested
 
 ## Cask gate (additional)
 

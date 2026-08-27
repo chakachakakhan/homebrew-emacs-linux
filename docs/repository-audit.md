@@ -115,8 +115,19 @@ problems and would violate this project's vanilla-Emacs goal.
 Homebrew describes a cask as a package definition for a precompiled binary and
 a formula as a source build. See the
 [`homebrew-cask` overview](https://github.com/Homebrew/homebrew-cask) and
-[`Formula Cookbook`](https://docs.brew.sh/Formula-Cookbook). Given the absence
-of a GNU Linux binary, the formula in this repository is the smallest design
-whose dependency resolution, relocation, bottle creation, and testing are all
-handled by existing Homebrew mechanisms.
+[`Formula Cookbook`](https://docs.brew.sh/Formula-Cookbook). The first proof of
+concept correctly used a formula because no GNU Linux binary exists. That made
+the install path too slow for a normal desktop package, however.
 
+The current iteration keeps the formula as the source-build and bottle recipe,
+then packages the tested result into architecture-specific release archives.
+The cask candidate mirrors UBlue’s ordinary Linux cask shape: pinned version
+and checksums, a release URL, explicit runtime formula dependencies, binaries,
+man pages, XDG desktop files, icons, and a small amount of preflight path
+substitution.
+This gives users the expected fast extraction path while keeping the source and
+build provenance in this repository.
+
+The cask remains a candidate until its release assets exist and pass the
+cross-distribution, linker, GUI, native-compilation, and uninstall checks. No
+UBlue pull request is implied by the presence of the candidate here.
