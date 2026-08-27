@@ -101,7 +101,27 @@ just verify
 This rebuilds Emacs from the GitHub copy. It does not remove `~/.emacs.d`,
 `~/.config/emacs`, or other personal Emacs configuration.
 
-## 5. Make later changes on a branch
+## 5. Produce the binary cask release
+
+The cask is intentionally a separate publication step from the personal tap
+formula. After reviewing the local formula and Stage 1 evidence:
+
+1. Push the reviewed branch to the personal repository.
+2. Run **Build Linux cask artifacts** from GitHub Actions with `31.1` and
+   artifact revision `1` (or the values for the release being prepared).
+3. Download and review both archives, their `BUILD-MANIFEST.json` files, the
+   per-archive checksums, and the workflow smoke-test logs.
+4. After that review, manually create the GitHub release with the immutable tag
+   `emacs-31.1-1`, both archives, and a combined `SHA256SUMS` file.
+5. Copy `proposals/Casks/emacs-app-linux.rb.example` to
+   `Casks/emacs-app-linux.rb`, replace the checksum placeholders using
+   `scripts/update-cask-checksums.sh`, and run `just cask-check`.
+
+Do not submit the cask to UBlue until the release archive has been tested on
+the intended systems. A source formula install and a successful archive build
+do not by themselves prove cask portability.
+
+## 6. Make later changes on a branch
 
 Keep `main` as the version people can install. For later work:
 

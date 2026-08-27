@@ -1,123 +1,125 @@
 # Architecture decision
 
-## Recommendation
+## Decision
 
-Use a Linux-only Homebrew formula as the first working and promotable package.
-Keep `emacs-app-linux` as a future cask name, but do not publish that cask until
-a portable prebuilt artifact exists and passes the cross-distribution matrix.
+Use two deliberately separate layers:
 
-This is a staged decision, not abandonment of the cask goal:
+1. `Formula/emacs-pgtk.rb` is the reproducible source-build recipe and the
+   development fallback.
+2. `emacs-app-linux` is a binary cask backed by immutable release archives
+   built from that recipe.
+
+This preserves Homebrew’s dependency and test machinery while removing the
+multi-minute source build from the normal installation path.
 
 ```text
-GNU Emacs 31.1 release + SHA-256
-                  |
-                  v
-       Homebrew emacs-pgtk formula
-                  |
-          test-bot builds bottles
-                  |
-      UBlue and generic Linux tests
-                  |
-                  v
-  decide whether the formula is sufficient
-        or produce a proven portable artifact
-                  |
-                  v
-        emacs-app-linux cask candidate
+GNU Emacs release archive
+          |
+          v
+Homebrew source-build recipe
+          |
+          v
+GitHub Actions: x86_64 + ARM64
+          |
+          v
+checksummed release archives
+          |
+          v
+emacs-app-linux cask
 ```
+
+The cask candidate is not copied into a tap until both architecture archives
+exist, their checksums are independently reviewed, and the archive contract
+has passed the portability tests in [`testing.md`](testing.md).
 
 ## Options considered
 
-| Option | Result | Reason |
+| Option | Decision | Reason |
 |---|---|---|
-| Controlled prebuilt tarball | Defer | Correct long-term cask shape, but GTK/native-comp relocation and glibc compatibility are not yet proven |
-| Homebrew source formula and bottles | Prototype now | Homebrew already manages dependencies, relocation, x86-64/ARM64 bottles, audit, and test-bot |
-| Official GNU Linux binary | Unavailable | GNU 31.1 publishes source archives and signatures, not a supported Linux GUI binary |
-| Other third-party binary | Reject for now | Reintroduces trust, cadence, and portability ownership unless that provider is demonstrably sustainable |
+| Homebrew source formula | Keep as the build recipe | Homebrew already resolves dependencies, builds bottles, and tests formulas; installation is slow from source |
+| Controlled release artifacts | Use for the cask | Makes the normal install fast while retaining a clear GNU source-to-artifact provenance chain |
+| Official GNU Linux binary | Not available for this target | GNU publishes the source release and signatures, not a supported portable PGTK Linux binary |
+| `daegalus/linux-app-builds` | Do not use | The provider and Fedora-labelled ABI are outside this repository’s maintenance control |
+| Emacs Plus | Reference only | It is a macOS packaging project; its patches and application layout do not belong in vanilla Linux Emacs |
 
-The formula is not chosen merely because it can compile Emacs. It is chosen
-because it makes every runtime library an explicit Homebrew dependency and
-lets Homebrew produce and relocate the binary package. A cask archive must
-solve those same problems itself.
+## Artifact contract
 
-The formula conflicts with other Emacs packages and links normally, giving the
-user an `emacs` command without a shell-profile edit. Emacs's compiled
-GSettings database is kept under the formula's private `libexec/share` tree;
-the `emacs` launcher prepends that tree to `XDG_DATA_DIRS` while preserving the
-user's existing value. This avoids taking ownership of GLib's shared compiled
-schema cache. AppStream metadata is omitted because it is not needed for a
-Homebrew install and can cause a second shared-directory ownership collision.
-The upstream desktop file and icons remain in standard linked XDG locations.
+Each release archive has a root named like:
 
-## Build behavior
+```text
+emacs-pgtk-31.1-linux-x86_64/
+```
 
-The formula uses only released upstream source and makes no source changes.
-`--disable-build-details` omits host names and timestamps that Emacs otherwise
-records. Homebrew still controls the compiler and dependency versions, so the
-build is reproducible in the practical package-manager sense, not yet a claim
-of bit-for-bit reproducibility.
+It contains the installed Emacs tree, a self-locating `bin/emacs` launcher,
+the portable dumper image beside the versioned executable, command-line tools,
+man pages, desktop files, icons, and:
 
-Before Emacs creates its portable dump, `lisp/site-load.el` removes Homebrew's
-temporary compiler-shim directories from `exec-path`. This follows the current
-homebrew-core Emacs formula and prevents a build-machine path from being
-embedded in the installed `.pdmp` file. The local site-Lisp path is scoped to
-this formula's own directory to avoid conflicts with other packages. A
-post-install step removes the generic `site-lisp/subdirs.el` that upstream's
-installer creates despite the scoped configuration.
+```text
+share/emacs-pgtk/BUILD-MANIFEST.json
+```
 
-PGTK is GTK 3 based. It is the preferred target for Wayland. GTK can select its
-X11 backend, but GNU's own documentation recommends the regular GTK/X build
-for users who exclusively use X11. The test plan therefore treats Wayland as
-the primary GUI target and X11 as compatibility testing, not an identical
-backend promise.
+The manifest records the GNU source URL and checksum, the recipe path, the
+Emacs version, artifact revision, build platform, and source commit. Homebrew
+receipt/SBOM files are excluded because they describe the builder’s formula
+keg, not the cask payload.
 
-Native compilation has two distinct phases:
+The release workflow produces a `.tar.gz` and matching `.sha256` file for each
+architecture. The cask’s `version` uses the normal Homebrew comma form:
+`31.1,1`, while the GitHub release tag is `emacs-31.1-1`.
 
-- During the build, `--with-native-compilation=aot` compiles the distributed
-  Lisp files ahead of time.
-- At runtime, users still need GCC and libgccjit so newly installed or changed
-  Lisp packages can be compiled. They are therefore runtime dependencies and
-  their library locations are included in the executable runpath.
+## Runtime model
 
-## Dependency matrix
+The artifact does not copy a compiled GSettings cache into a user directory.
+The launcher prepends its private schema directory to `XDG_DATA_DIRS` and
+sets Emacs’s data, executable, documentation, and load paths relative to the
+installed archive. Desktop files are rewritten at cask install time to use
+the active `HOMEBREW_PREFIX`.
 
-| Feature | Decision | Build/runtime provider | Reason and maintenance effect |
+The cask declares the formula's non-build dependencies, including GTK,
+GnuTLS, image libraries, XML, SQLite, and the native-compilation toolchain.
+The release archive deliberately does not vendor those shared libraries, so
+the cask remains a normal Homebrew binary installation with Homebrew-managed
+runtime versions. GCC/libgccjit are runtime requirements, not merely build
+requirements: Emacs uses them when a user installs or changes
+native-compilable Lisp. Tree-sitter provides the runtime parser library;
+language grammars remain user-installed libraries.
+
+The first artifact build uses Homebrew’s Linux toolchain, so the initial
+portability target is the standard Linux Homebrew prefix used by UBlue. An
+arbitrary-prefix and cross-distribution test remains a release gate; this is
+why the cask candidate is not yet an experimental-tap submission.
+
+## Build configuration
+
+The formula uses released GNU Emacs source with no downstream source patches.
+The selected 31.1 configuration is:
+
+| Feature | Decision | Provider | Reason |
 |---|---|---|---|
-| PGTK | Required | `gtk+3` | Native Wayland GUI; GTK 3 is required by Emacs 31.1 PGTK |
-| GTK-linked libraries | Required | `at-spi2-core`, `cairo`, `fontconfig`, `freetype`, `gdk-pixbuf`, `glib`, `harfbuzz`, `pango` | Emacs links these directly, so they are explicit dependencies rather than relying on GTK's dependency graph |
-| Linux C ABI | Required | `glibc` | Keeps Homebrew-built GTK and related libraries on Homebrew's supported, non-mixed linker path |
-| Native compilation | Required | `gcc`, `libgccjit` | AOT at build time and JIT for user packages at runtime; largest dependency burden |
-| Tree-sitter | Required | `tree-sitter` | Modern parser integration; grammars remain separately installed by users |
-| GnuTLS | Required | `gnutls` | Secure built-in network connections |
-| XML | Required | `libxml2` | Built-in XML parsing |
-| SQLite | Required | `sqlite` | Built-in database support used by modern packages |
-| Dynamic modules | Required | compiler support | Lets Emacs load native extension modules |
-| Cairo/HarfBuzz | Required | GTK dependency graph | Modern drawing and text shaping |
-| SVG | Required | `librsvg` | Primary scalable image support |
-| PNG/JPEG/GIF/TIFF/WebP | Required | corresponding Homebrew libraries | Common document and UI image formats |
-| Little CMS | Required | `little-cms2` | Color management with modest burden |
-| D-Bus | Required | `dbus` | Standard Linux desktop communication and notifications |
-| ALSA | Enabled | `alsa-lib` | Normal Linux sound support; small incremental burden |
-| Terminal interface | Required | `ncurses` | Emacs links it directly for terminal display support |
-| JSON | Required, built in | Emacs | `--with-json` is not an Emacs 31.1 option; smoke-tested through `json-serialize` |
-| ImageMagick | Disabled | none | Upstream disables it by default due to security/stability concerns; native image libraries cover the common formats |
-| Xwidgets | Deferred | WebKitGTK if enabled | Very large dependency and security/update surface; not needed for a first stable editor |
-| GPM | Disabled | none | Console mouse daemon is unnecessary for the GUI target |
-| systemd library | Disabled | none | Avoids a distribution-specific runtime dependency; D-Bus remains enabled |
-| ACL/xattr | Disabled | none | Avoids loading host `libattr` into a Homebrew-glibc build; not required for editor operation |
-| SELinux/Smack | Disabled | none | Avoids tying the Homebrew build to one host security stack |
+| PGTK | Enabled | `gtk+3` | Native Linux GUI; primary Wayland target |
+| Native compilation | Enabled, AOT | `gcc`, `libgccjit` | Fast built-in Lisp and runtime package compilation |
+| Tree-sitter | Enabled | `tree-sitter` | Modern parser integration |
+| GnuTLS | Enabled | `gnutls` | Secure network connections |
+| XML | Enabled | `libxml2` | Built-in XML parsing |
+| SQLite | Enabled | `sqlite` | Database support used by modern packages |
+| Dynamic modules | Enabled | compiler/runtime support | Native extension modules |
+| SVG | Enabled | `librsvg` | Scalable image support |
+| PNG/JPEG/GIF/TIFF/WebP | Enabled | corresponding libraries | Common document and UI formats |
+| Little CMS | Enabled | `little-cms2` | Color management |
+| D-Bus | Enabled | `dbus` | Desktop communication |
+| ALSA | Enabled | `alsa-lib` | Linux sound support |
+| ImageMagick | Disabled | — | Avoids a large security and update surface; native image libraries cover common formats |
+| Xwidgets | Deferred | WebKitGTK | Large optional dependency; not needed for the first package |
+| GPM/systemd/SELinux/Smack/ACL/xattr | Disabled | — | Avoids unnecessary host-specific runtime coupling |
 
-## Cask gate
+JSON is built into Emacs 31.1 and is tested through `json-serialize`; it is
+not passed as a configure option.
 
-The cask proposal in `proposals/Casks/emacs-app-linux.rb.example` defines the
-expected archive contract and desktop artifacts. It intentionally contains
-placeholder owner and checksums and is excluded from CI. Replacing those
-placeholders is not enough to make it releasable. The artifact must also:
+## Why the old cask was not copied
 
-1. be built from the pinned GNU archive in a pinned environment;
-2. include a machine-readable dependency/provenance manifest;
-3. avoid absolute build-host and Homebrew-prefix references;
-4. support runtime native compilation with Homebrew GCC/libgccjit;
-5. pass `ldd`/runpath inspection and all smoke tests;
-6. run on the listed UBlue and generic Linux systems;
-7. have immutable release URLs and per-architecture SHA-256 values.
+The existing UBlue cask is a useful packaging reference, but its launcher
+patches hardcode `/home/linuxbrew/.linuxbrew`, labels the artifact
+`fedora-latest`, copies `gschemas.compiled` into a user directory, and exposes
+the obsolete `ctags` executable. The candidate keeps its useful architecture,
+binary, manpage, desktop, icon, and livecheck shape while moving build
+ownership into this repository and avoiding those runtime hacks.

@@ -1,0 +1,89 @@
+name: Build Linux cask artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      emacs_version:
+        description: "GNU Emacs version already pinned in Formula/emacs-pgtk.rb"
+        required: true
+        default: "31.1"
+        type: string
+      artifact_revision:
+        description: "Cask artifact revision for this source version"
+        required: true
+        default: "1"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            artifact_arch: x86_64
+          - runner: ubuntu-24.04-arm
+            artifact_arch: arm64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Homebrew
+        id: setup-homebrew
+        uses: Homebrew/actions/setup-homebrew@a657b8b0cd35d0f65cce41fce9b24cf054b49869
+
+      - name: Cache Homebrew Ruby gems
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.setup-homebrew.outputs.gems-path }}
+          key: ${{ matrix.runner }}-rubygems-${{ steps.setup-homebrew.outputs.gems-hash }}
+          restore-keys: ${{ matrix.runner }}-rubygems-
+
+      - name: Build GNU Emacs from source
+        run: ./scripts/install-local.sh
+
+      - name: Test installed formula
+        run: brew test emacs-pgtk
+
+      - name: Check formula linkage
+        run: brew linkage --test emacs-pgtk
+
+      - name: Package cask artifact
+        env:
+          ARTIFACT_ARCH: ${{ matrix.artifact_arch }}
+          ARTIFACT_REVISION: ${{ inputs.artifact_revision }}
+          BUILD_PLATFORM: ${{ matrix.runner }}
+          EMACS_VERSION: ${{ inputs.emacs_version }}
+          SOURCE_DATE_EPOCH: 0
+        run: ./scripts/package-cask-artifact.sh "$RUNNER_TEMP/release"
+
+      - name: Smoke-test packaged archive
+        env:
+          ARTIFACT_ARCH: ${{ matrix.artifact_arch }}
+          EMACS_VERSION: ${{ inputs.emacs_version }}
+        run: |
+          archive="$RUNNER_TEMP/release/emacs-pgtk-${EMACS_VERSION}-linux-${ARTIFACT_ARCH}.tar.gz"
+          extract="$RUNNER_TEMP/archive-test"
+          mkdir -p "$extract"
+          tar -xzf "$archive" -C "$extract"
+          root="$extract/emacs-pgtk-${EMACS_VERSION}-linux-${ARTIFACT_ARCH}"
+          test ! -e "$root/.brew"
+          test ! -e "$root/INSTALL_RECEIPT.json"
+          test ! -e "$root/lib/systemd"
+          brew ruby -rjson -e 'JSON.parse(File.read(ARGV.fetch(0)))' \
+            "$root/share/emacs-pgtk/BUILD-MANIFEST.json"
+          ./scripts/smoke-test.sh "$root/bin/emacs"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emacs-${{ matrix.artifact_arch }}
+          path: ${{ runner.temp }}/release/*
+          if-no-files-found: error

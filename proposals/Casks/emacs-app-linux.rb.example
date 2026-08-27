@@ -1,23 +1,24 @@
-# Proposal only. This file is deliberately not a loadable tap cask yet.
-# The owner, artifact contract, and checksums must be real and the cask gate in
-# docs/testing.md must pass before moving this to Casks/emacs-app-linux.rb.
+# Candidate only. Do not copy this file into a tap until the release workflow
+# has produced immutable x86_64 and ARM64 assets and their SHA-256 values.
+# Then move it to Casks/emacs-app-linux.rb and replace both placeholders.
 cask "emacs-app-linux" do
-  arch arm: "aarch64", intel: "x86_64"
+  arch arm: "arm64", intel: "x86_64"
 
   version "31.1,1"
-  sha256 arm64_linux:  "REPLACE_WITH_64_HEX_CHARACTERS",
-         x86_64_linux: "REPLACE_WITH_64_HEX_CHARACTERS"
+  sha256 arm64_linux:  "REPLACE_WITH_RELEASE_SHA256",
+         x86_64_linux: "REPLACE_WITH_RELEASE_SHA256"
 
   archive_root = "emacs-pgtk-#{version.csv.first}-linux-#{arch}"
+  xdg_data = ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")
 
-  url "https://github.com/REPLACE_WITH_OWNER/emacs-linux/releases/download/emacs-#{version.csv.first}-#{version.csv.second}/#{archive_root}.tar.xz",
-      verified: "github.com/REPLACE_WITH_OWNER/emacs-linux/"
+  url "https://github.com/chakachakakhan/homebrew-emacs-linux/releases/download/emacs-#{version.csv.first}-#{version.csv.second}/#{archive_root}.tar.gz",
+      verified: "github.com/chakachakakhan/homebrew-emacs-linux/"
   name "GNU Emacs PGTK"
-  desc "GNU Emacs text editor with the PGTK interface"
+  desc "Extensible text editor with the PGTK interface"
   homepage "https://www.gnu.org/software/emacs/"
 
   livecheck do
-    url :url
+    url "https://github.com/chakachakakhan/homebrew-emacs-linux"
     regex(/^emacs[._-]v?(\d+(?:\.\d+)+)[._-](\d+)$/i)
     strategy :github_latest do |json, regex|
       json["tag_name"]&.scan(regex)&.map { |match| match.join(",") }
@@ -25,46 +26,92 @@ cask "emacs-app-linux" do
   end
 
   depends_on linux: :any
-  # Runtime native compilation needs both, even if all other non-system
-  # libraries have been made relocatable inside the future archive.
+  # The release archive is built from Formula/emacs-pgtk.rb and intentionally
+  # does not vendor Homebrew's shared libraries. Keep the cask runtime set in
+  # sync with the formula's non-build dependencies so installation remains a
+  # binary install without silently relying on host-specific libraries.
+  depends_on formula: "alsa-lib"
+  depends_on formula: "at-spi2-core"
+  depends_on formula: "cairo"
+  depends_on formula: "dbus"
+  depends_on formula: "fontconfig"
+  depends_on formula: "freetype"
   depends_on formula: "gcc"
+  depends_on formula: "gdk-pixbuf"
+  depends_on formula: "giflib"
+  depends_on formula: "glib"
+  depends_on formula: "glibc"
+  depends_on formula: "gmp"
+  depends_on formula: "gnutls"
+  depends_on formula: "gtk+3"
+  depends_on formula: "harfbuzz"
+  depends_on formula: "jpeg-turbo"
   depends_on formula: "libgccjit"
+  depends_on formula: "libpng"
+  depends_on formula: "librsvg"
+  depends_on formula: "libtiff"
+  depends_on formula: "libxml2"
+  depends_on formula: "little-cms2"
+  depends_on formula: "ncurses"
+  depends_on formula: "pango"
+  depends_on formula: "sqlite"
+  depends_on formula: "tree-sitter"
+  depends_on formula: "webp"
+  depends_on formula: "zlib-ng-compat"
 
   binary "#{archive_root}/bin/emacs"
   binary "#{archive_root}/bin/emacsclient"
   binary "#{archive_root}/bin/ebrowse"
   binary "#{archive_root}/bin/etags"
-
-  manpage "#{archive_root}/share/man/man1/emacs.1"
-  manpage "#{archive_root}/share/man/man1/emacsclient.1"
-  manpage "#{archive_root}/share/man/man1/ebrowse.1"
-  manpage "#{archive_root}/share/man/man1/etags.1"
-
+  manpage "#{archive_root}/share/man/man1/ebrowse.1.gz"
+  manpage "#{archive_root}/share/man/man1/emacs.1.gz"
+  manpage "#{archive_root}/share/man/man1/emacsclient.1.gz"
+  manpage "#{archive_root}/share/man/man1/etags.1.gz"
   artifact "#{archive_root}/share/applications/emacs.desktop",
-           target: "#{ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")}/applications/emacs.desktop"
+           target: "#{xdg_data}/applications/emacs.desktop"
+  artifact "#{archive_root}/share/applications/emacsclient.desktop",
+           target: "#{xdg_data}/applications/emacsclient.desktop"
+  artifact "#{archive_root}/share/applications/emacs-mail.desktop",
+           target: "#{xdg_data}/applications/emacs-mail.desktop"
+  artifact "#{archive_root}/share/applications/emacsclient-mail.desktop",
+           target: "#{xdg_data}/applications/emacsclient-mail.desktop"
+  artifact "#{archive_root}/share/icons/hicolor/16x16/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/16x16/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/24x24/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/24x24/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/32x32/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/32x32/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/48x48/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/48x48/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/128x128/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/128x128/apps/emacs.png"
   artifact "#{archive_root}/share/icons/hicolor/scalable/apps/emacs.svg",
-           target: "#{ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")}/icons/hicolor/scalable/apps/emacs.svg"
+           target: "#{xdg_data}/icons/hicolor/scalable/apps/emacs.svg"
 
   preflight do
-    xdg_data = ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")
     FileUtils.mkdir_p "#{xdg_data}/applications"
-    FileUtils.mkdir_p "#{xdg_data}/icons/hicolor/scalable/apps"
+    %w[16x16 24x24 32x32 48x48 128x128 scalable].each do |size|
+      FileUtils.mkdir_p "#{xdg_data}/icons/hicolor/#{size}/apps"
+    end
 
-    desktop_file = "#{staged_path}/#{archive_root}/share/applications/emacs.desktop"
-    desktop = File.read(desktop_file)
-    desktop.gsub!("Exec=emacs", "Exec=#{HOMEBREW_PREFIX}/bin/emacs")
-    File.write(desktop_file, desktop)
+    Dir.glob("#{staged_path}/#{archive_root}/share/applications/*.desktop").each do |desktop_file|
+      content = File.read(desktop_file)
+      content.gsub!("@HOMEBREW_PREFIX@", HOMEBREW_PREFIX.to_s)
+      File.write(desktop_file, content)
+    end
   end
 
-  zap trash: [
-    "#{ENV.fetch("XDG_CACHE_HOME", "#{Dir.home}/.cache")}/emacs",
-    "#{ENV.fetch("XDG_CONFIG_HOME", "#{Dir.home}/.config")}/emacs",
-    "#{ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")}/emacs",
-  ]
+  postflight do
+    system "/usr/bin/xdg-icon-resource", "forceupdate" if File.executable?("/usr/bin/xdg-icon-resource")
+  end
+
+  uninstall_postflight do
+    system "/usr/bin/xdg-icon-resource", "forceupdate" if File.executable?("/usr/bin/xdg-icon-resource")
+  end
 
   caveats <<~EOS
-    PGTK is the primary Wayland build. It can use GTK's X11 backend, but GNU
-    recommends the regular GTK/X build for systems that use X11 exclusively.
+    This build uses Emacs's PGTK interface, which is intended for Wayland and
+    can also use GTK's X11 backend. GNU recommends the regular GTK/X build for
+    systems that use X11 exclusively.
   EOS
 end
-

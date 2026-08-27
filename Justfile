@@ -23,6 +23,14 @@ verify:
     brew linkage --test emacs-pgtk
     brew audit --strict --formula emacs-pgtk
 
+# Package the installed formula as a local release candidate archive.
+package:
+    ./scripts/package-cask-artifact.sh
+
+# Check the cask candidate without downloading a release asset.
+cask-check:
+    brew ruby -- -c proposals/Casks/emacs-app-linux.rb.example
+
 # Remove the formula; personal Emacs configuration is left untouched.
 uninstall:
     brew uninstall emacs-pgtk

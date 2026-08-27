@@ -1,11 +1,23 @@
 # GNU Emacs PGTK for Homebrew on Linux
 
-This is the personal Homebrew tap for a pre-publication prototype of vanilla
-GNU Emacs 31.1 with its PGTK interface on Linux.
+Personal Homebrew packaging work for a vanilla GNU Emacs 31.1 build with the
+PGTK interface, native compilation, and tree-sitter on Linux.
 
-## Install from the personal tap
+Maintainer: [Tahir Khan](https://github.com/chakachakakhan)
 
-Once `chakachakakhan/homebrew-emacs-linux` is published on GitHub:
+## Project status
+
+The source formula is working and tested locally on Bluefin x86-64. The next
+iteration moves the user-facing install path to a release-backed cask so users
+download a prepared build instead of compiling Emacs during installation.
+
+The cask candidate is intentionally kept under [`proposals/`](proposals/) until
+the release workflow has produced and verified immutable x86-64 and ARM64
+archives. This repository does not claim that the cask is ready for UBlue yet.
+
+## Current install path
+
+The working development package is a Homebrew formula:
 
 ```bash
 brew tap chakachakakhan/emacs-linux
@@ -13,116 +25,67 @@ brew trust --tap chakachakakhan/emacs-linux
 brew install emacs-pgtk
 ```
 
-Homebrew 6 requires the explicit trust step before it will load a formula from
-a non-official tap. Trusting is a local decision stored in Homebrew's user
-configuration; it does not grant this repository access to your machine or
-GitHub account.
-
-Then start the GUI with:
+Then run:
 
 ```bash
 emacs
 ```
 
-The GitHub repository must be named `homebrew-emacs-linux`. Homebrew removes
-the `homebrew-` prefix when it forms the tap name
-`chakachakakhan/emacs-linux`.
+The source build is deliberately retained as the build recipe and fallback
+path. It is not the intended end-user experience because a complete Emacs
+build takes several minutes.
 
-Nothing here has been pushed, published, or submitted upstream. The working
-implementation is deliberately a Homebrew **formula**, because GNU currently
-publishes Emacs source code but no supported portable Linux GUI binary. A cask
-is included only as a reviewed proposal in `proposals/`; it must not be shipped
-until a relocatable artifact has passed the portability tests in
-[`docs/testing.md`](docs/testing.md).
+## Planned cask path
 
-## What is implemented
-
-- GNU Emacs 31.1 from the official GNU release archive and pinned SHA-256
-- GTK 3 PGTK build for native Wayland and GTK's other supported backends
-- ahead-of-time and run-time native compilation through GCC/libgccjit
-- tree-sitter, GnuTLS, XML, SQLite, dynamic modules, Cairo, HarfBuzz, SVG,
-  WebP, PNG, JPEG, GIF, TIFF, Little CMS, D-Bus, and ALSA support
-- no Emacs Plus patches, custom configuration, branding, or UBlue-only paths
-- a headless smoke test that checks the promised features and performs an
-  actual native compilation
-- a normal `emacs` command and upstream desktop launcher without shell-profile
-  edits or shared GSettings-cache overwrites
-- read-only GitHub Actions checks on x86-64 and ARM64 Linux runners
-
-## Current status
-
-This is a development prototype, not an experimental-tap submission yet. On
-2026-08-27, the personal-tap source install, automated checks, a real PGTK
-Wayland frame launch, and an isolated `emacsclient` round trip passed on
-Bluefin 20260824 x86-64 with Homebrew 6.0.19. Clipboard, menu discovery, and
-the other unchecked interactive tests remain unclaimed. This one-machine
-result does not prove Aurora/Bazzite coverage, ARM64 behavior, or generic Linux
-portability.
-
-The research and decision record is in:
-
-- [`docs/repository-audit.md`](docs/repository-audit.md)
-- [`docs/architecture.md`](docs/architecture.md)
-- [`docs/testing.md`](docs/testing.md)
-- [`docs/maintenance.md`](docs/maintenance.md)
-
-## Local checks
-
-First run the fast checks, which do not install anything:
+After release assets and checksums are reviewed, the cask will provide:
 
 ```bash
-./scripts/check-local.sh
+brew tap chakachakakhan/emacs-linux
+brew install --cask emacs-app-linux
 ```
 
-Homebrew requires formulae to live in a tap. This helper copies the recipe to a
-local-only test tap, then builds and installs it:
+The cask archive contains the upstream desktop files, icons, portable dumper
+image, command-line tools, and man pages. It declares the formula’s full
+non-build runtime dependency set so Homebrew supplies the GTK, image, network,
+database, and native-compilation libraries required by the prepared binary.
+
+## Build and test
+
+Run checks that do not rebuild Emacs:
 
 ```bash
-./scripts/install-local.sh
+just check
 ```
 
-Then verify the installed editor:
+Build and install the development formula locally:
 
 ```bash
-./scripts/smoke-test.sh "$(brew --prefix emacs-pgtk)/bin/emacs"
-```
-
-If you have `just`, the full already-installed verification is:
-
-```bash
+just install
 just verify
 ```
 
-Launch the GUI on Wayland:
+Package the installed formula as a local release candidate:
 
 ```bash
-emacs
+just package
 ```
 
-Launch in the terminal (also useful without a display server):
+The release helper records the GNU source URL and checksum in
+`BUILD-MANIFEST.json`, removes Homebrew receipt metadata, creates the cask
+archive, and writes a matching `.sha256` file. It does not publish anything.
 
-```bash
-emacs -nw
-```
+## Design principles
 
-Remove the prototype without deleting your Emacs configuration:
+- Build from the official GNU Emacs release archive.
+- Keep Emacs vanilla: no Emacs Plus patches, custom configuration, branding,
+  or UBlue-specific runtime behavior.
+- Use the existing Homebrew formula machinery for dependency resolution and
+  CI builds.
+- Use a cask only for immutable, checksummed release artifacts.
+- Treat Bluefin as the first validation environment, not as the package’s
+  permanent dependency.
+- Keep release publication and UBlue pull requests under maintainer review.
 
-```bash
-brew uninstall emacs-pgtk
-brew untap chakachakakhan/emacs-linux
-```
-
-For the local-only development helper, untap `local/emacs-linux` instead.
-
-Homebrew's default Linux prefix is `/home/linuxbrew/.linuxbrew`, but the recipe
-does not hard-code it. Homebrew supplies the active prefix when it builds and
-relocates a bottle.
-
-## Before publishing
-
-Read [`docs/testing.md`](docs/testing.md) and record real results. In
-particular, do not claim that the cask, ARM64, X11, or a distribution has been
-tested unless it actually has been tested there.
-
-The first GitHub publication steps are documented in
-[`docs/publish-personal-tap.md`](docs/publish-personal-tap.md).
+See [`docs/architecture.md`](docs/architecture.md) for the decision record,
+[`docs/testing.md`](docs/testing.md) for evidence and remaining gates, and
+[`docs/maintenance.md`](docs/maintenance.md) for the update and release flow.
