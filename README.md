@@ -9,14 +9,14 @@ Once `chakachakakhan/homebrew-emacs-linux` is published on GitHub:
 
 ```bash
 brew tap chakachakakhan/emacs-linux
+brew trust --tap chakachakakhan/emacs-linux
 brew install emacs-pgtk
 ```
 
-The equivalent one-command install is:
-
-```bash
-brew install chakachakakhan/emacs-linux/emacs-pgtk
-```
+Homebrew 6 requires the explicit trust step before it will load a formula from
+a non-official tap. Trusting is a local decision stored in Homebrew's user
+configuration; it does not grant this repository access to your machine or
+GitHub account.
 
 Then start the GUI with:
 

@@ -10,6 +10,9 @@ if ! tap_root="$(brew --repository "$tap_name" 2>/dev/null)"; then
   tap_root="$(brew --repository "$tap_name")"
 fi
 
+# Homebrew 6 requires explicit trust before loading any non-official formula.
+brew trust --tap "$tap_name"
+
 mkdir -p "$tap_root/Formula"
 cp "$repo_root/Formula/emacs-pgtk.rb" "$tap_root/Formula/emacs-pgtk.rb"
 

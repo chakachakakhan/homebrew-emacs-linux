@@ -59,10 +59,16 @@ On a machine without a local development tap for this project:
 
 ```bash
 brew tap chakachakakhan/emacs-linux
+brew trust --tap chakachakakhan/emacs-linux
 brew install emacs-pgtk
 brew test chakachakakhan/emacs-linux/emacs-pgtk
 emacs --version
 ```
+
+Homebrew 6 deliberately requires the trust command for a formula from a
+non-official tap. Read the repository before trusting it. The trust entry is
+stored in your local Homebrew configuration and can be inspected with
+`brew trust --json=v1`.
 
 Then complete the unchecked interactive items in `docs/testing.md`. A green
 GitHub Actions run is useful evidence, but it does not replace the Wayland,
