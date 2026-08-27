@@ -1,0 +1,70 @@
+# Proposal only. This file is deliberately not a loadable tap cask yet.
+# The owner, artifact contract, and checksums must be real and the cask gate in
+# docs/testing.md must pass before moving this to Casks/emacs-app-linux.rb.
+cask "emacs-app-linux" do
+  arch arm: "aarch64", intel: "x86_64"
+
+  version "31.1,1"
+  sha256 arm64_linux:  "REPLACE_WITH_64_HEX_CHARACTERS",
+         x86_64_linux: "REPLACE_WITH_64_HEX_CHARACTERS"
+
+  archive_root = "emacs-pgtk-#{version.csv.first}-linux-#{arch}"
+
+  url "https://github.com/REPLACE_WITH_OWNER/emacs-linux/releases/download/emacs-#{version.csv.first}-#{version.csv.second}/#{archive_root}.tar.xz",
+      verified: "github.com/REPLACE_WITH_OWNER/emacs-linux/"
+  name "GNU Emacs PGTK"
+  desc "GNU Emacs text editor with the PGTK interface"
+  homepage "https://www.gnu.org/software/emacs/"
+
+  livecheck do
+    url :url
+    regex(/^emacs[._-]v?(\d+(?:\.\d+)+)[._-](\d+)$/i)
+    strategy :github_latest do |json, regex|
+      json["tag_name"]&.scan(regex)&.map { |match| match.join(",") }
+    end
+  end
+
+  depends_on linux: :any
+  # Runtime native compilation needs both, even if all other non-system
+  # libraries have been made relocatable inside the future archive.
+  depends_on formula: "gcc"
+  depends_on formula: "libgccjit"
+
+  binary "#{archive_root}/bin/emacs"
+  binary "#{archive_root}/bin/emacsclient"
+  binary "#{archive_root}/bin/ebrowse"
+  binary "#{archive_root}/bin/etags"
+
+  manpage "#{archive_root}/share/man/man1/emacs.1"
+  manpage "#{archive_root}/share/man/man1/emacsclient.1"
+  manpage "#{archive_root}/share/man/man1/ebrowse.1"
+  manpage "#{archive_root}/share/man/man1/etags.1"
+
+  artifact "#{archive_root}/share/applications/emacs.desktop",
+           target: "#{ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")}/applications/emacs.desktop"
+  artifact "#{archive_root}/share/icons/hicolor/scalable/apps/emacs.svg",
+           target: "#{ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")}/icons/hicolor/scalable/apps/emacs.svg"
+
+  preflight do
+    xdg_data = ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")
+    FileUtils.mkdir_p "#{xdg_data}/applications"
+    FileUtils.mkdir_p "#{xdg_data}/icons/hicolor/scalable/apps"
+
+    desktop_file = "#{staged_path}/#{archive_root}/share/applications/emacs.desktop"
+    desktop = File.read(desktop_file)
+    desktop.gsub!("Exec=emacs", "Exec=#{HOMEBREW_PREFIX}/bin/emacs")
+    File.write(desktop_file, desktop)
+  end
+
+  zap trash: [
+    "#{ENV.fetch("XDG_CACHE_HOME", "#{Dir.home}/.cache")}/emacs",
+    "#{ENV.fetch("XDG_CONFIG_HOME", "#{Dir.home}/.config")}/emacs",
+    "#{ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")}/emacs",
+  ]
+
+  caveats <<~EOS
+    PGTK is the primary Wayland build. It can use GTK's X11 backend, but GNU
+    recommends the regular GTK/X build for systems that use X11 exclusively.
+  EOS
+end
+
