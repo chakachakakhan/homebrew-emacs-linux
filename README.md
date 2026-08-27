@@ -52,10 +52,12 @@ until a relocatable artifact has passed the portability tests in
 ## Current status
 
 This is a development prototype, not an experimental-tap submission yet. On
-2026-08-27, the source build and automated local checks passed on Bluefin
-20260824 x86-64 with Homebrew 6.0.19. No GUI or interactive desktop claims are
-included yet. This one-machine result does not prove Aurora/Bazzite coverage,
-ARM64 behavior, or generic Linux portability.
+2026-08-27, the personal-tap source install, automated checks, a real PGTK
+Wayland frame launch, and an isolated `emacsclient` round trip passed on
+Bluefin 20260824 x86-64 with Homebrew 6.0.19. Clipboard, menu discovery, and
+the other unchecked interactive tests remain unclaimed. This one-machine
+result does not prove Aurora/Bazzite coverage, ARM64 behavior, or generic Linux
+portability.
 
 The research and decision record is in:
 

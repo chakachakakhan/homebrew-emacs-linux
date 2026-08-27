@@ -25,13 +25,14 @@ repository's own `brew test-bot` workflow and produce bottle artifacts.
 - [x] `./scripts/smoke-test.sh "$(brew --prefix emacs-pgtk)/bin/emacs"`
 - [x] `brew linkage --test emacs-pgtk`
 - [ ] `emacs -nw` starts and exits normally
-- [ ] `emacs` opens a PGTK frame on Wayland
+- [x] `emacs` opens a PGTK frame on Wayland
 - [ ] clipboard copy/paste in both directions
 - [ ] font rendering and HiDPI scaling
 - [ ] input method used by the tester
 - [ ] file chooser and drag-and-drop
+- [x] upstream desktop files and icons are installed
 - [ ] desktop launcher appears and opens a file
-- [ ] `emacsclient` connects to `(server-start)`
+- [x] `emacsclient` connects to an isolated Emacs daemon
 - [ ] install a package and confirm run-time native compilation
 - [ ] install and load one tree-sitter grammar
 - [ ] Git subprocess works
@@ -47,24 +48,27 @@ Capture `M-x report-emacs-bug`'s build summary or evaluate
 | Item | Environment | Result |
 |---|---|---|
 | Source and checksum | Official GNU Emacs 31.1 archive | SHA-256 matched `1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586` |
-| Source build/install | Bluefin 20260824 (`dakota-nvidia-gaming`), x86-64, Homebrew 6.0.19 | Passed; 6,011 files, 290.8 MB, approximately 12 minutes for the final build |
+| Personal tap discovery | Local Git remote tapped as `chakachakakhan/emacs-linux` | Passed; Homebrew 6 required and accepted explicit `brew trust --tap` |
+| Source build/install | Bluefin 20260824 (`dakota-nvidia-gaming`), x86-64, Homebrew 6.0.19 | Passed through `brew install emacs-pgtk`; 6,009 files, 290.8 MB, approximately 6 minutes |
 | Syntax and style | Same machine | Passed; ShellCheck was not installed and was explicitly skipped |
 | Formula test | Same machine | Passed |
 | Feature/native-compile smoke test | Same machine | Passed on GNU Emacs 31.1; created a real `.eln` file |
 | Direct dependency linkage | Same machine | Passed |
 | `brew audit --strict --formula` | Same machine | Passed |
 | Embedded compiler-shim path check | Same machine | No absolute Homebrew shim directory found in the installed keg |
+| Wayland GUI | Same machine, `XDG_SESSION_TYPE=wayland` | A real PGTK frame opened and exited cleanly; GTK printed a harmless missing `canberra-gtk-module` message requested by the host environment |
+| `emacsclient` | Same machine | Connected to an isolated daemon and returned Emacs 31.1, native-comp available, and tree-sitter available |
+| Desktop artifacts | Same machine | Upstream desktop files and hicolor PNG/SVG icons are installed; application-menu discovery and opening a file remain interactive tests |
 
-The unchecked Stage 1 items require interactive use. In particular, the GUI,
-Wayland clipboard, desktop launcher, `emacsclient`, package installation,
-tree-sitter grammar, Git, and TRAMP have not been claimed from the automated
-run.
+The unchecked Stage 1 items require interactive use. In particular, Wayland
+clipboard behavior, application-menu discovery, package installation, a real
+tree-sitter grammar, Git, and TRAMP have not been claimed from this run.
 
 ## Stage 2: UBlue
 
 | System | x86-64 | ARM64 | Wayland GUI | Headless | Status |
 |---|---:|---:|---:|---:|---|
-| Bluefin | planned | planned | planned | planned | not yet recorded |
+| Bluefin | tested | planned | short frame launch passed | automated passed | partial Stage 1 evidence |
 | Aurora | planned | planned | planned | planned | not yet recorded |
 | Bazzite | planned | planned | planned | planned | not yet recorded |
 
@@ -87,9 +91,9 @@ and recommends the ordinary GTK/X build for X11-only systems.
   interactive portion remains)
 - [ ] x86-64 CI green
 - [ ] ARM64 CI green, or ARM64 explicitly scoped out with a reason
-- [ ] `brew audit` and `brew style` green
+- [x] `brew audit` and `brew style` green locally
 - [ ] test-bot produces installable bottles
-- [ ] no downstream source patch
+- [x] no downstream source patch
 - [ ] update and rollback procedure rehearsed
 - [ ] maintainer commitment stated
 - [ ] known PGTK/X11 limitations documented

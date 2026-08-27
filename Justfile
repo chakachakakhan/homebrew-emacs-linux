@@ -18,10 +18,10 @@ smoke:
 
 # Run the complete automated verification on an installed local build.
 verify:
-    brew test local/emacs-linux/emacs-pgtk
+    brew test emacs-pgtk
     ./scripts/smoke-test.sh "$(brew --prefix emacs-pgtk)/bin/emacs"
     brew linkage --test emacs-pgtk
-    brew audit --strict --formula local/emacs-linux/emacs-pgtk
+    brew audit --strict --formula emacs-pgtk
 
 # Remove the formula; personal Emacs configuration is left untouched.
 uninstall:

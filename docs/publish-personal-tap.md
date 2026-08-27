@@ -58,6 +58,7 @@ does not submit anything to UBlue.
 On a machine without a local development tap for this project:
 
 ```bash
+brew update
 brew tap chakachakakhan/emacs-linux
 brew trust --tap chakachakakhan/emacs-linux
 brew install emacs-pgtk
