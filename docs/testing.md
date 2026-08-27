@@ -37,8 +37,8 @@ repository's own `brew test-bot` workflow and produce bottle artifacts.
 - [ ] install and load one tree-sitter grammar
 - [ ] Git subprocess works
 - [ ] SSH/TRAMP smoke test works
-- [ ] uninstall removes Homebrew files but preserves user configuration
-- [ ] reinstall succeeds
+- [x] uninstall removes linked Homebrew files without touching user configuration
+- [x] reinstall succeeds from the still-tapped personal repository
 
 Capture `M-x report-emacs-bug`'s build summary or evaluate
 `system-configuration-options` when recording results.
@@ -59,6 +59,7 @@ Capture `M-x report-emacs-bug`'s build summary or evaluate
 | Wayland GUI | Same machine, `XDG_SESSION_TYPE=wayland` | A real PGTK frame opened and exited cleanly; GTK printed a harmless missing `canberra-gtk-module` message requested by the host environment |
 | `emacsclient` | Same machine | Connected to an isolated daemon and returned Emacs 31.1, native-comp available, and tree-sitter available |
 | Desktop artifacts | Same machine | Upstream desktop files and hicolor PNG/SVG icons are installed; application-menu discovery and opening a file remain interactive tests |
+| Uninstall/reinstall | Same machine | Uninstall removed the formula, linked executable, and linked desktop file; reinstall from `chakachakakhan/emacs-linux` passed and left Emacs installed |
 
 The unchecked Stage 1 items require interactive use. In particular, Wayland
 clipboard behavior, application-menu discovery, package installation, a real
