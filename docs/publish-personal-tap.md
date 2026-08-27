@@ -53,6 +53,14 @@ git push -u origin main
 Run only one `git remote add origin` command. Pushing to the personal repository
 does not submit anything to UBlue.
 
+If Git rejects the push with `main -> main (fetch first)`, the GitHub
+repository already contains a commit—usually because it was initialized with a
+README, license, or `.gitignore`. Do not immediately force-push. Inspect it
+with `git fetch origin` and `git log --oneline --graph --decorate --all -10`.
+For a brand-new repository whose generated files are unwanted, the simplest
+beginner-safe fix is to delete and recreate it empty; otherwise, merge the
+remote work deliberately before pushing.
+
 ## 4. Test the published tap
 
 On a machine without a local development tap for this project:
