@@ -3,7 +3,7 @@
 Personal Homebrew packaging work for a vanilla GNU Emacs 31.1 build with the
 PGTK interface, native compilation, and tree-sitter on Linux.
 
-Maintainer: [Tahir Khan](https://github.com/chakachakakhan)
+Maintainer: [Chaka Khan](https://github.com/chakachakakhan)
 
 ## Project status
 
