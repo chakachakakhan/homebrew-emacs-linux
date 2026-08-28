@@ -38,7 +38,6 @@ has passed the portability tests in [`testing.md`](testing.md).
 | Controlled release artifacts | Use for the cask | Makes the normal install fast while retaining a clear GNU source-to-artifact provenance chain |
 | Official GNU Linux binary | Not available for this target | GNU publishes the source release and signatures, not a supported portable PGTK Linux binary |
 | `daegalus/linux-app-builds` | Do not use | The provider and Fedora-labelled ABI are outside this repository’s maintenance control |
-| Emacs Plus | Reference only | It is a macOS packaging project; its patches and application layout do not belong in vanilla Linux Emacs |
 
 ## Artifact contract
 

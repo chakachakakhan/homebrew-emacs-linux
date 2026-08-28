@@ -103,8 +103,8 @@ behavior, but support for additional distributions and architecture/desktop
 combinations should be treated as work in progress until recorded in the test
 plan.
 
-This is vanilla GNU Emacs. It does not include Emacs Plus patches, custom
-configuration, or a preconfigured editing environment.
+This is vanilla GNU Emacs. It does not include custom configuration or a
+preconfigured editing environment.
 
 ## Documentation
 
