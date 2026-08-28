@@ -57,14 +57,15 @@ share/emacs-pgtk/BUILD-MANIFEST.json
 ```
 
 The manifest records the GNU source URL and checksum, the recipe path, the
-Emacs version, artifact revision, build platform, and source commit. Homebrew
-receipt/SBOM files are excluded because they describe the builder’s formula
-keg, not the cask payload.
+Emacs version, artifact revision, build platform, compiler target, and source
+commit. Homebrew receipt/SBOM files are excluded because they describe the
+builder’s formula keg, not the cask payload.
 
 The release workflow produces a `.tar.gz` and matching `.sha256` file for each
-architecture. The cask’s `version` uses the normal Homebrew comma form:
-`31.1,1`; the comma suffix is the artifact revision, not an Emacs patch
-version. The corresponding GitHub release tag is `emacs-31.1-1`.
+architecture. The cask’s `version` uses the normal Homebrew comma form, for
+example `31.1,2`; the comma suffix is the artifact revision, not an Emacs
+patch version. The corresponding GitHub release tag uses the same revision,
+such as `emacs-31.1-2`.
 
 ## Runtime model
 
@@ -89,6 +90,13 @@ The artifact build uses Homebrew’s Linux toolchain, so the initial portability
 target is the standard Linux Homebrew prefix used by the target Linux
 distributions. Arbitrary-prefix and cross-distribution tests remain release
 gates for future platform claims.
+
+Linux Homebrew otherwise defaults source builds to the host’s native
+microarchitecture. The release workflow overrides that default with
+`-march=x86-64` for x86_64 and `-march=armv8-a` for ARM64. The packaged x86_64
+executable is disassembled in CI and rejected if it contains VEX or EVEX
+vector instructions, which prevents a newer release runner from publishing a
+binary that fails on an older supported CPU.
 
 ## Build configuration
 

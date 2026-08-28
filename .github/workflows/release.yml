@@ -11,28 +11,34 @@ on:
       artifact_revision:
         description: "Cask artifact revision for this source version"
         required: true
-        default: "2"
+        default: "3"
         type: string
 
 permissions:
   contents: read
-
-env:
-  EMACS_FORMULA_REF: local/emacs-linux/emacs-pgtk
 
 jobs:
   build:
     name: Build ${{ matrix.runner }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 120
+    env:
+      EMACS_FORMULA_REF: local/emacs-linux/emacs-pgtk
+      ARTIFACT_ARCH: ${{ matrix.artifact_arch }}
+      # Homebrew defaults to the build host's native microarchitecture on
+      # Linux. Release archives must run on other machines, so select an
+      # explicit architecture target for each runner instead.
+      HOMEBREW_ARCH: ${{ matrix.homebrew_arch }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - runner: ubuntu-24.04
             artifact_arch: x86_64
+            homebrew_arch: x86-64
           - runner: ubuntu-24.04-arm
             artifact_arch: arm64
+            homebrew_arch: armv8-a
 
     steps:
       - name: Check out repository
@@ -48,6 +54,11 @@ jobs:
           path: ${{ steps.setup-homebrew.outputs.gems-path }}
           key: ${{ matrix.runner }}-rubygems-${{ steps.setup-homebrew.outputs.gems-hash }}
           restore-keys: ${{ matrix.runner }}-rubygems-
+
+      - name: Verify portable build target
+        run: |
+          test -n "$HOMEBREW_ARCH"
+          echo "Building $ARTIFACT_ARCH artifacts with -march=$HOMEBREW_ARCH"
 
       - name: Build GNU Emacs from source
         run: ./scripts/install-local.sh
@@ -80,8 +91,11 @@ jobs:
           test ! -e "$root/.brew"
           test ! -e "$root/INSTALL_RECEIPT.json"
           test ! -e "$root/lib/systemd"
+          ./scripts/check-portable-x86-64.sh "$root/bin/emacs-${EMACS_VERSION}"
           brew ruby -rjson -e 'JSON.parse(File.read(ARGV.fetch(0)))' \
             "$root/share/emacs-pgtk/BUILD-MANIFEST.json"
+          test "$(brew ruby -rjson -e 'puts JSON.parse(File.read(ARGV.fetch(0))).fetch("compiler_target")' \
+            "$root/share/emacs-pgtk/BUILD-MANIFEST.json")" = "$HOMEBREW_ARCH"
           ./scripts/smoke-test.sh "$root/bin/emacs"
 
       - name: Upload build artifact

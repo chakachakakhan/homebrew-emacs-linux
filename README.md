@@ -5,14 +5,12 @@ PGTK interface, native compilation, and tree-sitter.
 
 ## Status
 
-The source formula is working and has been tested on Bluefin x86-64. The first
-binary cask release is available for Linux x86-64 and ARM64, so normal
-installation downloads a prepared build instead of compiling Emacs locally.
+The source formula is working and has been tested on Bluefin x86-64. Binary
+cask builds are available for Linux x86-64 and ARM64, so normal installation
+downloads a prepared build instead of compiling Emacs locally.
 
-Release: [`emacs-31.1-1`](https://github.com/chakachakakhan/homebrew-emacs-linux/releases/tag/emacs-31.1-1)
-
-The comma suffix in Homebrew's cask version is an artifact revision, not part
-of the GNU Emacs version. This release contains GNU Emacs 31.1.
+Binary artifacts are published on the repository's [GitHub Releases
+page](https://github.com/chakachakakhan/homebrew-emacs-linux/releases).
 
 Broader Linux and desktop validation is still in progress. The source formula
 remains available for development and for environments where building locally

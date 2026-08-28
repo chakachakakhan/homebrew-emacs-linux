@@ -9,8 +9,9 @@
    `PROBLEMS`, and `configure --help`.
 3. Run the local formula checks and the complete Stage 1 test plan.
 4. Run the manually triggered `Build Linux cask artifacts` workflow. It builds
-   x86-64 and ARM64 assets, records provenance, and uploads the archives and
-   checksums as workflow artifacts. It does not publish a release.
+   x86-64 and ARM64 assets with fixed portable compiler targets, records
+   provenance, and uploads the archives and checksums as workflow artifacts.
+   It does not publish a release.
 5. Download and review the archives, manifests, dynamic-linker output, and
    smoke-test results. Create the GitHub release manually only after that
    review, using the immutable tag `emacs-<version>-<artifact-revision>` and
@@ -42,6 +43,9 @@ require maintainer review.
 - Never replace files at an existing release URL or tag.
 - If a build fails, inspect the build log, linker output, manifest, and smoke
   test instead of weakening the check.
+- Treat a failed CPU portability check as a release blocker. Do not solve it
+  by asking users to run a different launcher or by assuming that a newer CPU
+  is representative of the release audience.
 - Keep the last known-good cask checksum and release available while testing a
   new artifact revision.
 - If an experimental-tap update is broken, prepare a small revert or disable
