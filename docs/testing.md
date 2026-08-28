@@ -3,6 +3,12 @@
 Do not turn a planned test into a claimed test. Add the date, machine/image,
 architecture, command, and result when a row is actually run.
 
+## Automated repository checks
+
+Fast syntax and style checks run on every push and pull request. The source
+build workflow runs on changes to the formula, build scripts, or build
+configuration, and can also be started manually.
+
 ## Automated headless checks
 
 `scripts/smoke-test.sh` verifies:
@@ -13,9 +19,9 @@ architecture, command, and result when a row is actually run.
 - tree-sitter, SQLite, GnuTLS, JSON, and dynamic modules are available;
 - PNG, JPEG, GIF, TIFF, SVG, and WebP support can be loaded.
 
-The standalone CI runs the source build and smoke test on GitHub's x86-64 and
-ARM64 Ubuntu runners. A distribution-tap submission will additionally run the
-target tap's `brew test-bot` workflow and produce bottle artifacts.
+The source-build CI runs the formula build and smoke test on GitHub's x86-64
+and ARM64 Ubuntu runners. A distribution-tap submission will additionally run
+the target tap's `brew test-bot` workflow and produce bottle artifacts.
 
 ## Cask artifact checks
 

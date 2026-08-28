@@ -2,7 +2,17 @@ name: Validate Emacs PGTK
 
 on:
   push:
+    paths:
+      - "Formula/**"
+      - "scripts/**"
+      - "Justfile"
+      - ".github/workflows/ci.yml"
   pull_request:
+    paths:
+      - "Formula/**"
+      - "scripts/**"
+      - "Justfile"
+      - ".github/workflows/ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -38,7 +48,7 @@ jobs:
           key: ${{ matrix.runner }}-rubygems-${{ steps.setup-homebrew.outputs.gems-hash }}
           restore-keys: ${{ matrix.runner }}-rubygems-
 
-      - name: Run fast checks
+      - name: Run pre-build checks
         run: ./scripts/check-local.sh
 
       - name: Install from source
