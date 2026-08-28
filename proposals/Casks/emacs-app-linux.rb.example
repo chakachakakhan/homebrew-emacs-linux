@@ -1,4 +1,4 @@
-# Candidate only. Do not copy this file into a tap until the release workflow
+# Release candidate. Keep this file under proposals until the release workflow
 # has produced immutable x86_64 and ARM64 assets and their SHA-256 values.
 # Then move it to Casks/emacs-app-linux.rb and replace both placeholders.
 cask "emacs-app-linux" do

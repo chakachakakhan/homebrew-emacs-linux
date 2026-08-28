@@ -1,6 +1,6 @@
-# Maintenance plan
+# Release and maintenance
 
-## Release flow
+## Release checklist
 
 1. Confirm the next stable GNU Emacs release and verify its detached signature
    using the documented GNU maintainer key.
@@ -20,22 +20,22 @@
    checked with `scripts/update-cask-checksums.sh`.
 7. Run cask style/audit and install, upgrade, launch, and uninstall tests from
    the published release.
-8. Open the UBlue experimental-tap PR with the cask, evidence, and a concise
-   maintenance commitment.
+8. Submit the cask to the target tap with the test evidence and a concise
+   maintenance note.
 
 The cask’s artifact revision is separate from the GNU version. Increment it
 when the source version is unchanged but the release archive or build recipe
 changes.
 
-## Automation boundary
+## Automation
 
 The workflow is manually dispatched and does not run on every push. It builds
 and uploads reviewable artifacts but does not publish a GitHub release, push to
 UBlue, open pull requests, or silently change the cask checksum.
 
-Routine version detection and checksum updates can be automated later, but
-changes to Emacs feature flags, dependencies, PGTK behavior, and native
-compilation always require human review.
+Routine version detection and checksum updates can be automated later. Changes
+to Emacs feature flags, dependencies, PGTK behavior, and native compilation
+require maintainer review.
 
 ## Failure and rollback
 
@@ -47,9 +47,9 @@ compilation always require human review.
 - If an experimental-tap update is broken, prepare a small revert or disable
   change for maintainer review; do not hide the failure in the test suite.
 
-## Human responsibilities
+## Maintainer responsibilities
 
-The maintainer remains responsible for GitHub authentication, repository
-settings, release publication, UBlue pull requests, maintainer communication,
-and claims about platforms that were tested. CI produces evidence; it does not
-replace those decisions.
+The maintainer is responsible for release publication, repository settings,
+distribution submissions, communication with reviewers, and claims about
+platforms that were tested. CI produces evidence; it does not replace those
+decisions.
