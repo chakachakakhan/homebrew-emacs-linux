@@ -63,15 +63,18 @@ keg, not the cask payload.
 
 The release workflow produces a `.tar.gz` and matching `.sha256` file for each
 architecture. The cask’s `version` uses the normal Homebrew comma form:
-`31.1,1`, while the GitHub release tag is `emacs-31.1-1`.
+`31.1,1`; the comma suffix is the artifact revision, not an Emacs patch
+version. The corresponding GitHub release tag is `emacs-31.1-1`.
 
 ## Runtime model
 
 The artifact does not copy a compiled GSettings cache into a user directory.
 The launcher prepends its private schema directory to `XDG_DATA_DIRS` and
 sets Emacs’s data, executable, documentation, and load paths relative to the
-installed archive. Desktop files are rewritten at cask install time to use
-the active `HOMEBREW_PREFIX`.
+installed archive. Its `EMACSLOADPATH` points only to the archive’s standard
+Lisp directory, so it does not fall back to the build-time Homebrew Cellar
+path. Desktop files are rewritten at cask install time to use the active
+`HOMEBREW_PREFIX`.
 
 The cask declares the formula's non-build dependencies, including GTK,
 GnuTLS, image libraries, XML, SQLite, and the native-compilation toolchain.

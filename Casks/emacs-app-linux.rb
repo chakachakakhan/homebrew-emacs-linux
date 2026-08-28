@@ -2,6 +2,7 @@
 cask "emacs-app-linux" do
   arch arm: "arm64", intel: "x86_64"
 
+  # The comma suffix is Homebrew's artifact revision, not an Emacs version.
   version "31.1,1"
   sha256 arm64_linux:  "3eaa338b231cc8b26fd345a69d85161be6c4944d651cf8e5297acc85bdbcaca9",
          x86_64_linux: "a02595879a919936bd5b24f2e88c37a3bc4a1d4061812a3926eca96cdba61cb6"
