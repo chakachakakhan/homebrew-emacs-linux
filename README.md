@@ -3,8 +3,6 @@
 A personal Homebrew tap for vanilla GNU Emacs 31.1 on Linux, built with the
 PGTK interface, native compilation, and tree-sitter.
 
-Maintainer: [Chaka Khan](https://github.com/chakachakakhan)
-
 ## Status
 
 The source formula is working and has been tested on Bluefin x86-64. The
