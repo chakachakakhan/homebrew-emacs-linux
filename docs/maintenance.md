@@ -16,17 +16,18 @@
    smoke-test results. Create the GitHub release manually only after that
    review, using the immutable tag `emacs-<version>-<artifact-revision>` and
    both architecture archives plus a combined `SHA256SUMS` file.
-6. Copy the reviewed per-architecture checksums into the cask candidate and
-   move it to `Casks/emacs-app-linux.rb`. The mechanical replacement can be
-   checked with `scripts/update-cask-checksums.sh`.
+6. Copy the reviewed per-architecture checksums into `Casks/emacs-app-linux.rb`
+   and update its internal `artifact_revision`. The cask's public version
+   remains the GNU version; `scripts/update-cask-checksums.sh` handles the
+   checksum replacement.
 7. Run cask style/audit and install, upgrade, launch, and uninstall tests from
    the published release.
 8. Submit the cask to the target tap with the test evidence and a concise
    maintenance note.
 
-The cask’s artifact revision is separate from the GNU version. Increment it
-when the source version is unchanged but the release archive or build recipe
-changes.
+The artifact revision is deliberately separate from the cask's public version.
+Increment it when the source version is unchanged but the release archive or
+build recipe changes. Never replace an existing release asset or tag.
 
 ## Automation
 
@@ -34,9 +35,15 @@ The workflow is manually dispatched and does not run on every push. It builds
 and uploads reviewable artifacts but does not publish a GitHub release, push to
 UBlue, open pull requests, or silently change the cask checksum.
 
-Routine version detection and checksum updates can be automated later. Changes
-to Emacs feature flags, dependencies, PGTK behavior, and native compilation
-require maintainer review.
+The UBlue experimental and main taps run scheduled Homebrew Bump workflows.
+Those workflows can open update pull requests when Homebrew can discover a
+package's upstream version, and their test/publish workflows validate approved
+changes. They do not build or publish this repository's custom Emacs assets,
+so a maintainer still needs to make and review each release artifact, update
+the cask, and submit the distribution-tap pull request.
+
+Changes to Emacs feature flags, dependencies, PGTK behavior, and native
+compilation require maintainer review even when an automated bump is possible.
 
 ## Failure and rollback
 

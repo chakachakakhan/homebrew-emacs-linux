@@ -16,7 +16,9 @@ if [[ ! -f "$cask_path" ]]; then
   exit 1
 fi
 
-emacs_version="$(sed -n 's/^  version "\([0-9.]*\),.*/\1/p' "$cask_path" | head -n 1)"
+# Read only the GNU version. The cask keeps any artifact rebuild revision in
+# its release URL so users see the actual Emacs version during installation.
+emacs_version="$(sed -n 's/^  version "\([0-9][0-9.]*\).*/\1/p' "$cask_path" | head -n 1)"
 if [[ -z "$emacs_version" ]]; then
   echo "Could not read the Emacs version from $cask_path" >&2
   exit 1

@@ -25,4 +25,6 @@ jobs:
         run: ./scripts/check-local.sh
 
       - name: Check cask syntax
-        run: brew ruby -- -c proposals/Casks/emacs-app-linux.rb.example
+        run: |
+          brew ruby -- -c Casks/emacs-app-linux.rb
+          brew ruby -- -c proposals/Casks/emacs-app-linux.rb.example

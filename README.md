@@ -1,104 +1,115 @@
-# GNU Emacs PGTK for Homebrew on Linux
+# GNU Emacs for Homebrew on Linux
 
-A personal Homebrew tap for vanilla GNU Emacs 31.1 on Linux, built with the
-PGTK interface, native compilation, and tree-sitter.
+Reproducible GNU Emacs 31.1 builds for Linux, with a fast binary cask and a
+source formula for development.
 
-## Status
+Maintained by [Chaka Khan](https://github.com/chakachakakhan).
 
-The source formula is working and has been tested on Bluefin x86-64. Binary
-cask builds are available for Linux x86-64 and ARM64, so normal installation
-downloads a prepared build instead of compiling Emacs locally.
+## Install
 
-Binary artifacts are published on the repository's [GitHub Releases
-page](https://github.com/chakachakakhan/homebrew-emacs-linux/releases).
-
-Broader Linux and desktop validation is still in progress. The source formula
-remains available for development and for environments where building locally
-is preferred.
-
-## Install the source formula
-
-The formula is useful for development and for systems where building from
-source is preferred:
+The binary cask is the normal installation path:
 
 ```bash
 brew tap chakachakakhan/emacs-linux
-brew trust --tap chakachakakhan/emacs-linux
-brew install emacs-pgtk
+brew install --cask emacs-app-linux
 ```
 
-Then run:
+Homebrew 6 may ask you to trust a third-party tap before installation. Review
+the tap first, then run:
+
+```bash
+brew trust --tap chakachakakhan/emacs-linux
+```
+
+Start Emacs with:
 
 ```bash
 emacs
 ```
 
-The source build is deliberately retained as the build recipe and fallback
-path. It is not the intended end-user experience because a complete Emacs
-build takes several minutes.
+The current release targets Linux `x86_64` and `arm64`. It uses Emacs's PGTK
+interface, which is primarily intended for Wayland and can also use GTK's X11
+backend. GNU recommends the regular GTK/X build for systems that use X11
+exclusively.
 
-## Install the binary cask
+## What is included
 
-Install the published binary cask with:
-
-```bash
-brew tap chakachakakhan/emacs-linux
-brew trust --tap chakachakakhan/emacs-linux
-brew install --cask emacs-app-linux
-```
-
-The archive contains the upstream desktop files, icons, portable dumper image,
-command-line tools, and man pages. Homebrew supplies the shared runtime
-libraries required by the prepared binary.
-
-## Included features
-
-- PGTK with Wayland support and GTK's X11 backend
-- Native compilation through GCC and libgccjit
+- Native compilation through GCC and `libgccjit`
 - Tree-sitter, dynamic modules, SQLite, GnuTLS, and XML support
 - PNG, JPEG, GIF, TIFF, SVG, and WebP image support
 - `emacs`, `emacsclient`, `ebrowse`, and `etags`
-- Desktop files, icons, and man pages
+- Desktop launchers, icons, and man pages
 
-## Build and test
+The cask downloads a prepared release archive. Homebrew installs the shared
+runtime libraries it needs, so users do not wait for Emacs to compile locally.
+GCC and `libgccjit` remain runtime dependencies because Emacs can compile Lisp
+after installation.
 
-Run checks that do not rebuild Emacs:
+## Source builds
+
+The formula is useful for development, feature changes, and systems where a
+local build is preferred:
+
+```bash
+brew tap chakachakakhan/emacs-linux
+brew install emacs-pgtk
+```
+
+This path builds GNU Emacs from source and therefore takes considerably longer
+than the binary cask.
+
+## Development
+
+Run the fast checks first:
 
 ```bash
 just check
+just cask-check
 ```
 
-Build and install the development formula locally:
+Build and verify the source formula locally:
 
 ```bash
 just install
 just verify
 ```
 
-Package the installed formula as a local release candidate:
+Create a local cask release candidate from the installed formula:
 
 ```bash
 just package
 ```
 
-The release helper records the GNU source URL and checksum in
-`BUILD-MANIFEST.json`, removes Homebrew receipt metadata, creates the cask
-archive, and writes a matching `.sha256` file. It does not publish anything.
+The release helper records the official GNU source URL and checksum in
+`BUILD-MANIFEST.json`, removes Homebrew receipt metadata, creates the archive,
+and writes its SHA-256 file. It does not publish anything.
 
-## Packaging model
+## Releases
 
-The formula is the source-build recipe and the cask is the fast binary
-installation. GitHub Actions builds each architecture from the official GNU
-Emacs source archive, records the source and build commit in the artifact
-manifest, and uploads reviewable archives. Releases are published only after
-the archives and checksums have been inspected.
+GitHub Actions builds the x86_64 and arm64 archives from the official GNU
+Emacs source, runs headless and portability checks, and records build
+provenance in each archive. A release is published only after the artifacts,
+manifests, and checksums have been reviewed.
 
-The build is intended to remain vanilla GNU Emacs. It does not include Emacs
-Plus patches, custom configuration, or distribution-specific runtime behavior.
+The cask displays the GNU Emacs version (`31.1`). An internal artifact revision
+may appear in the immutable release URL when the same source version needs to
+be rebuilt; it is not part of the user-facing Emacs version.
+
+## Scope
+
+Bluefin x86_64 is the primary validation environment. The project uses
+standard Homebrew and XDG paths and avoids distribution-specific runtime
+behavior, but support for additional distributions and architecture/desktop
+combinations should be treated as work in progress until recorded in the test
+plan.
+
+This is vanilla GNU Emacs. It does not include Emacs Plus patches, custom
+configuration, or a preconfigured editing environment.
 
 ## Documentation
 
-- [`docs/architecture.md`](docs/architecture.md) — build and packaging layout
-- [`docs/testing.md`](docs/testing.md) — automated checks and validation status
-- [`docs/maintenance.md`](docs/maintenance.md) — release and update process
-- [`docs/publish-personal-tap.md`](docs/publish-personal-tap.md) — distribution workflow
+- [Architecture](docs/architecture.md) — build and packaging layout
+- [Testing](docs/testing.md) — automated checks and validation evidence
+- [Maintenance](docs/maintenance.md) — update, release, and rollback checklist
+- [Release process](docs/release-process.md) — maintainer workflow
+- [Contributing](CONTRIBUTING.md) — local development and pull requests

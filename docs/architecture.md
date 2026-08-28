@@ -62,10 +62,11 @@ commit. Homebrew receipt/SBOM files are excluded because they describe the
 builder’s formula keg, not the cask payload.
 
 The release workflow produces a `.tar.gz` and matching `.sha256` file for each
-architecture. The cask’s `version` uses the normal Homebrew comma form, for
-example `31.1,2`; the comma suffix is the artifact revision, not an Emacs
-patch version. The corresponding GitHub release tag uses the same revision,
-such as `emacs-31.1-2`.
+architecture. The cask reports the GNU version directly, for example `31.1`,
+so the installation experience does not expose an implementation-only build
+counter. The immutable GitHub release tag keeps that counter separately, such
+as `emacs-31.1-3`; a later rebuild of the same source version must use a new
+tag and a new checksum.
 
 ## Runtime model
 

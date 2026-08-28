@@ -75,7 +75,7 @@ the cask automatically. The checked-in cask records the published release;
 - [ ] Git subprocess works
 - [ ] SSH/TRAMP smoke test works
 - [x] uninstall removes linked Homebrew files without touching user configuration
-- [x] reinstall succeeds from the still-tapped personal repository
+- [x] reinstall succeeds from the still-tapped repository
 
 Capture `M-x report-emacs-bug`'s build summary or evaluate
 `system-configuration-options` when recording results.
@@ -85,7 +85,7 @@ Capture `M-x report-emacs-bug`'s build summary or evaluate
 | Item | Environment | Result |
 |---|---|---|
 | Source and checksum | Official GNU Emacs 31.1 archive | SHA-256 matched `1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586` |
-| Personal tap discovery | Local Git remote tapped as `chakachakakhan/emacs-linux` | Passed; Homebrew 6 required and accepted explicit `brew trust --tap` |
+| Tap discovery | Local Git remote tapped as `chakachakakhan/emacs-linux` | Passed; Homebrew 6 required and accepted explicit `brew trust --tap` |
 | Cask archive packaging | Same machine, x86-64 | Packaging and archive-structure checks passed; the final executable smoke test must be rerun after restoring the complete formula runtime dependency set |
 | Source build/install | Bluefin 20260824 (`dakota-nvidia-gaming`), x86-64, Homebrew 6.0.19 | Passed through `brew install emacs-pgtk`; 6,009 files, 290.8 MB, approximately 6 minutes |
 | Syntax and style | Same machine | Passed; ShellCheck was not installed and was explicitly skipped |

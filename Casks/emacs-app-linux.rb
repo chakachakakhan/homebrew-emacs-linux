@@ -1,29 +1,35 @@
 # GNU Emacs 31.1 PGTK binary release for Linux.
 cask "emacs-app-linux" do
   arch arm: "arm64", intel: "x86_64"
+  os linux: "linux"
 
-  # The comma suffix is Homebrew's artifact revision, not an Emacs version.
-  version "31.1,3"
+  # Keep the user-facing cask version equal to the GNU Emacs version. The
+  # release revision is an implementation detail for rebuilding the same
+  # source version without replacing an immutable GitHub release.
+  version "31.1"
+  artifact_revision = "3"
   sha256 arm64_linux:  "0608227decf6a108d80044cacc2b57c67d82d50febabefa73e2dca256659e805",
          x86_64_linux: "24fa16052b28239ca6bebda144eacbc61d347293a7c75e62185fdd3e514775aa"
 
-  archive_root = "emacs-pgtk-#{version.csv.first}-linux-#{arch}"
+  archive_root = "emacs-pgtk-#{version}-linux-#{arch}"
   xdg_data = ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")
 
-  url "https://github.com/chakachakakhan/homebrew-emacs-linux/releases/download/emacs-#{version.csv.first}-#{version.csv.second}/#{archive_root}.tar.gz",
+  url "https://github.com/chakachakakhan/homebrew-emacs-linux/releases/download/emacs-#{version}-#{artifact_revision}/#{archive_root}.tar.gz",
       verified: "github.com/chakachakakhan/homebrew-emacs-linux/"
   name "GNU Emacs PGTK"
   desc "Extensible text editor with the PGTK interface"
   homepage "https://www.gnu.org/software/emacs/"
 
   livecheck do
-    url "https://github.com/chakachakakhan/homebrew-emacs-linux"
-    regex(/^emacs[._-]v?(\d+(?:\.\d+)+)[._-](\d+)$/i)
+    url "https://github.com/chakachakakhan/homebrew-emacs-linux/releases"
+    regex(/^emacs[._-]v?(\d+(?:\.\d+)+)(?:[._-]\d+)?$/i)
     strategy :github_latest do |json, regex|
-      json["tag_name"]&.scan(regex)&.map { |match| match.join(",") }
+      match = json["tag_name"]&.match(regex)
+      match&.captures&.first
     end
   end
 
+  auto_updates false
   depends_on linux: :any
   # The release archive is built from Formula/emacs-pgtk.rb and intentionally
   # does not vendor Homebrew's shared libraries. Keep the cask runtime set in
@@ -102,10 +108,16 @@ cask "emacs-app-linux" do
 
   postflight do
     system "/usr/bin/xdg-icon-resource", "forceupdate" if File.executable?("/usr/bin/xdg-icon-resource")
+    if File.executable?("/usr/bin/update-desktop-database")
+      system "/usr/bin/update-desktop-database", "#{xdg_data}/applications"
+    end
   end
 
   uninstall_postflight do
     system "/usr/bin/xdg-icon-resource", "forceupdate" if File.executable?("/usr/bin/xdg-icon-resource")
+    if File.executable?("/usr/bin/update-desktop-database")
+      system "/usr/bin/update-desktop-database", "#{xdg_data}/applications"
+    end
   end
 
   caveats <<~EOS

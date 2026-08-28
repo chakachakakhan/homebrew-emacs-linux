@@ -31,7 +31,8 @@ package:
 
 # Check the cask candidate without downloading a release asset.
 cask-check:
-    if [[ -f Casks/emacs-app-linux.rb ]]; then brew ruby -- -c Casks/emacs-app-linux.rb; else brew ruby -- -c proposals/Casks/emacs-app-linux.rb.example; fi
+    brew ruby -- -c Casks/emacs-app-linux.rb
+    brew ruby -- -c proposals/Casks/emacs-app-linux.rb.example
 
 # Remove the formula; personal Emacs configuration is left untouched.
 uninstall:

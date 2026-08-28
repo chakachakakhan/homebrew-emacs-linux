@@ -29,5 +29,5 @@ Local install complete. Start it with:
 
   emacs
 
-The public personal-tap workflow is documented in the README.
+  The public tap workflow is documented in the README.
 EOF

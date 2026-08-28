@@ -34,7 +34,9 @@ fi
 if command -v brew >/dev/null 2>&1; then
   echo "Checking Homebrew style..."
   brew style "$repo_root/Formula/emacs-pgtk.rb"
-  echo "Cask candidate syntax passed above; cask style is checked after it is copied into a tap-shaped Casks directory."
+  if [[ -f "$repo_root/Casks/emacs-app-linux.rb" ]]; then
+    brew style "$repo_root/Casks/emacs-app-linux.rb"
+  fi
 else
   echo "Homebrew is not installed; skipped Homebrew style check."
 fi
