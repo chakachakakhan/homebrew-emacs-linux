@@ -3,6 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 tap_name="local/emacs-linux"
+formula_ref="$tap_name/emacs-pgtk"
 
 if ! tap_root="$(brew --repository "$tap_name" 2>/dev/null)"; then
   echo "Creating the local-only Homebrew test tap $tap_name..."
@@ -16,10 +17,10 @@ brew trust --tap "$tap_name"
 mkdir -p "$tap_root/Formula"
 cp "$repo_root/Formula/emacs-pgtk.rb" "$tap_root/Formula/emacs-pgtk.rb"
 
-if brew list --formula emacs-pgtk >/dev/null 2>&1; then
-  brew reinstall --build-from-source "$tap_name/emacs-pgtk"
+if brew list --formula "$formula_ref" >/dev/null 2>&1; then
+  brew reinstall --build-from-source "$formula_ref"
 else
-  brew install --build-from-source "$tap_name/emacs-pgtk"
+  brew install --build-from-source "$formula_ref"
 fi
 
 cat <<EOF

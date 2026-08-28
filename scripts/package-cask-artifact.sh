@@ -5,7 +5,8 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 emacs_version="${EMACS_VERSION:-31.1}"
 artifact_revision="${ARTIFACT_REVISION:-1}"
 output_dir="${1:-$repo_root/dist}"
-formula_prefix="${EMACS_FORMULA_PREFIX:-$(brew --prefix emacs-pgtk)}"
+formula_ref="${EMACS_FORMULA_REF:-local/emacs-linux/emacs-pgtk}"
+formula_prefix="${EMACS_FORMULA_PREFIX:-$(brew --prefix "$formula_ref")}"
 source_url="$(sed -n 's/^[[:space:]]*url "\([^"]*\)"/\1/p' "$repo_root/Formula/emacs-pgtk.rb" | head -n 1)"
 source_sha256="$(sed -n 's/^[[:space:]]*sha256 "\([0-9a-f]\{64\}\)"/\1/p' "$repo_root/Formula/emacs-pgtk.rb" | head -n 1)"
 build_commit="${GITHUB_SHA:-$(git -C "$repo_root" rev-parse HEAD)}"
@@ -13,7 +14,7 @@ build_platform="${BUILD_PLATFORM:-$(uname -s)-$(uname -m)}"
 
 if [[ ! -d "$formula_prefix" ]]; then
   echo "Emacs formula prefix does not exist: $formula_prefix" >&2
-  echo "Install emacs-pgtk first, or set EMACS_FORMULA_PREFIX." >&2
+  echo "Install $formula_ref first, or set EMACS_FORMULA_PREFIX." >&2
   exit 1
 fi
 

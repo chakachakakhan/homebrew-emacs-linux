@@ -1,5 +1,7 @@
 set shell := ["bash", "-cu"]
 
+formula_ref := "local/emacs-linux/emacs-pgtk"
+
 # Show the available project commands.
 default:
     @just --list
@@ -14,14 +16,14 @@ install:
 
 # Test the installed formula, including a real native compilation.
 smoke:
-    ./scripts/smoke-test.sh "$(brew --prefix emacs-pgtk)/bin/emacs"
+    ./scripts/smoke-test.sh "$(brew --prefix '{{formula_ref}}')/bin/emacs"
 
 # Run the complete automated verification on an installed local build.
 verify:
-    brew test emacs-pgtk
-    ./scripts/smoke-test.sh "$(brew --prefix emacs-pgtk)/bin/emacs"
-    brew linkage --test emacs-pgtk
-    brew audit --strict --formula emacs-pgtk
+    brew test '{{formula_ref}}'
+    ./scripts/smoke-test.sh "$(brew --prefix '{{formula_ref}}')/bin/emacs"
+    brew linkage --test '{{formula_ref}}'
+    brew audit --strict --formula '{{formula_ref}}'
 
 # Package the installed formula as a local release candidate archive.
 package:
@@ -33,4 +35,4 @@ cask-check:
 
 # Remove the formula; personal Emacs configuration is left untouched.
 uninstall:
-    brew uninstall emacs-pgtk
+    brew uninstall '{{formula_ref}}'

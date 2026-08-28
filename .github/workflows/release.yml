@@ -17,6 +17,9 @@ on:
 permissions:
   contents: read
 
+env:
+  EMACS_FORMULA_REF: local/emacs-linux/emacs-pgtk
+
 jobs:
   build:
     name: Build ${{ matrix.runner }}
@@ -50,10 +53,10 @@ jobs:
         run: ./scripts/install-local.sh
 
       - name: Test installed formula
-        run: brew test emacs-pgtk
+        run: brew test "$EMACS_FORMULA_REF"
 
       - name: Check formula linkage
-        run: brew linkage --test emacs-pgtk
+        run: brew linkage --test "$EMACS_FORMULA_REF"
 
       - name: Package cask artifact
         env:
