@@ -26,9 +26,9 @@ checksummed release archives
 emacs-app-linux cask
 ```
 
-The cask is not copied into a tap until both architecture archives exist, their
-checksums are independently reviewed, and the archive contract has passed the
-portability tests in [`testing.md`](testing.md).
+For each release, the cask is updated only after both architecture archives
+exist, their checksums are independently reviewed, and the archive contract
+has passed the portability tests in [`testing.md`](testing.md).
 
 ## Packaging choices
 
@@ -82,10 +82,10 @@ requirements: Emacs uses them when a user installs or changes
 native-compilable Lisp. Tree-sitter provides the runtime parser library;
 language grammars remain user-installed libraries.
 
-The first artifact build uses Homebrew’s Linux toolchain, so the initial
-portability target is the standard Linux Homebrew prefix used by the target
-Linux distributions. Arbitrary-prefix and cross-distribution tests remain
-release gates.
+The artifact build uses Homebrew’s Linux toolchain, so the initial portability
+target is the standard Linux Homebrew prefix used by the target Linux
+distributions. Arbitrary-prefix and cross-distribution tests remain release
+gates for future platform claims.
 
 ## Build configuration
 

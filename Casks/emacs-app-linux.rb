@@ -1,0 +1,115 @@
+# GNU Emacs 31.1 PGTK binary release for Linux.
+cask "emacs-app-linux" do
+  arch arm: "arm64", intel: "x86_64"
+
+  version "31.1,1"
+  sha256 arm64_linux:  "3eaa338b231cc8b26fd345a69d85161be6c4944d651cf8e5297acc85bdbcaca9",
+         x86_64_linux: "a02595879a919936bd5b24f2e88c37a3bc4a1d4061812a3926eca96cdba61cb6"
+
+  archive_root = "emacs-pgtk-#{version.csv.first}-linux-#{arch}"
+  xdg_data = ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")
+
+  url "https://github.com/chakachakakhan/homebrew-emacs-linux/releases/download/emacs-#{version.csv.first}-#{version.csv.second}/#{archive_root}.tar.gz",
+      verified: "github.com/chakachakakhan/homebrew-emacs-linux/"
+  name "GNU Emacs PGTK"
+  desc "Extensible text editor with the PGTK interface"
+  homepage "https://www.gnu.org/software/emacs/"
+
+  livecheck do
+    url "https://github.com/chakachakakhan/homebrew-emacs-linux"
+    regex(/^emacs[._-]v?(\d+(?:\.\d+)+)[._-](\d+)$/i)
+    strategy :github_latest do |json, regex|
+      json["tag_name"]&.scan(regex)&.map { |match| match.join(",") }
+    end
+  end
+
+  depends_on linux: :any
+  # The release archive is built from Formula/emacs-pgtk.rb and intentionally
+  # does not vendor Homebrew's shared libraries. Keep the cask runtime set in
+  # sync with the formula's non-build dependencies so installation remains a
+  # binary install without silently relying on host-specific libraries.
+  depends_on formula: "alsa-lib"
+  depends_on formula: "at-spi2-core"
+  depends_on formula: "cairo"
+  depends_on formula: "dbus"
+  depends_on formula: "fontconfig"
+  depends_on formula: "freetype"
+  depends_on formula: "gcc"
+  depends_on formula: "gdk-pixbuf"
+  depends_on formula: "giflib"
+  depends_on formula: "glib"
+  depends_on formula: "glibc"
+  depends_on formula: "gmp"
+  depends_on formula: "gnutls"
+  depends_on formula: "gtk+3"
+  depends_on formula: "harfbuzz"
+  depends_on formula: "jpeg-turbo"
+  depends_on formula: "libgccjit"
+  depends_on formula: "libpng"
+  depends_on formula: "librsvg"
+  depends_on formula: "libtiff"
+  depends_on formula: "libxml2"
+  depends_on formula: "little-cms2"
+  depends_on formula: "ncurses"
+  depends_on formula: "pango"
+  depends_on formula: "sqlite"
+  depends_on formula: "tree-sitter"
+  depends_on formula: "webp"
+  depends_on formula: "zlib-ng-compat"
+
+  binary "#{archive_root}/bin/emacs"
+  binary "#{archive_root}/bin/emacsclient"
+  binary "#{archive_root}/bin/ebrowse"
+  binary "#{archive_root}/bin/etags"
+  manpage "#{archive_root}/share/man/man1/ebrowse.1.gz"
+  manpage "#{archive_root}/share/man/man1/emacs.1.gz"
+  manpage "#{archive_root}/share/man/man1/emacsclient.1.gz"
+  manpage "#{archive_root}/share/man/man1/etags.1.gz"
+  artifact "#{archive_root}/share/applications/emacs.desktop",
+           target: "#{xdg_data}/applications/emacs.desktop"
+  artifact "#{archive_root}/share/applications/emacsclient.desktop",
+           target: "#{xdg_data}/applications/emacsclient.desktop"
+  artifact "#{archive_root}/share/applications/emacs-mail.desktop",
+           target: "#{xdg_data}/applications/emacs-mail.desktop"
+  artifact "#{archive_root}/share/applications/emacsclient-mail.desktop",
+           target: "#{xdg_data}/applications/emacsclient-mail.desktop"
+  artifact "#{archive_root}/share/icons/hicolor/16x16/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/16x16/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/24x24/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/24x24/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/32x32/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/32x32/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/48x48/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/48x48/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/128x128/apps/emacs.png",
+           target: "#{xdg_data}/icons/hicolor/128x128/apps/emacs.png"
+  artifact "#{archive_root}/share/icons/hicolor/scalable/apps/emacs.svg",
+           target: "#{xdg_data}/icons/hicolor/scalable/apps/emacs.svg"
+
+  preflight do
+    FileUtils.mkdir_p "#{xdg_data}/applications"
+    %w[16x16 24x24 32x32 48x48 128x128 scalable].each do |size|
+      FileUtils.mkdir_p "#{xdg_data}/icons/hicolor/#{size}/apps"
+    end
+
+    Dir.glob("#{staged_path}/#{archive_root}/share/applications/*.desktop").each do |desktop_file|
+      content = File.read(desktop_file)
+      content.gsub!("@HOMEBREW_PREFIX@", HOMEBREW_PREFIX.to_s)
+      File.write(desktop_file, content)
+    end
+  end
+
+  postflight do
+    system "/usr/bin/xdg-icon-resource", "forceupdate" if File.executable?("/usr/bin/xdg-icon-resource")
+  end
+
+  uninstall_postflight do
+    system "/usr/bin/xdg-icon-resource", "forceupdate" if File.executable?("/usr/bin/xdg-icon-resource")
+  end
+
+  caveats <<~EOS
+    This build uses Emacs's PGTK interface, which is intended for Wayland and
+    can also use GTK's X11 backend. GNU recommends the regular GTK/X build for
+    systems that use X11 exclusively.
+  EOS
+end
