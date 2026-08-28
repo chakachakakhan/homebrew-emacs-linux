@@ -69,12 +69,14 @@ The cask is intentionally a separate publication step from the personal tap
 formula. After reviewing the local formula and Stage 1 evidence:
 
 1. Push the reviewed branch to this repository.
-2. Run **Build Linux cask artifacts** from GitHub Actions with `31.1` and
-   artifact revision `1` (or the values for the release being prepared).
+2. Run **Build Linux cask artifacts** from GitHub Actions with the pinned GNU
+   Emacs version and the next artifact revision for the release being
+   prepared.
 3. Download and review both archives, their `BUILD-MANIFEST.json` files, the
    per-archive checksums, and the workflow smoke-test logs.
 4. After that review, manually create the GitHub release with the immutable tag
-   `emacs-31.1-1`, both archives, and a combined `SHA256SUMS` file.
+   `emacs-<version>-<artifact-revision>`, both archives, and a combined
+   `SHA256SUMS` file.
 5. Copy `proposals/Casks/emacs-app-linux.rb.example` to
    `Casks/emacs-app-linux.rb`, replace the checksum placeholders using
    `scripts/update-cask-checksums.sh`, and run `just cask-check`.

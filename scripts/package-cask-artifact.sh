@@ -102,7 +102,10 @@ export XDG_DATA_DIRS="\$root_dir/libexec/share:\${XDG_DATA_DIRS:-\$root_dir/shar
 export EMACSDATA="\$root_dir/share/emacs/$emacs_version/etc"
 export EMACSPATH="\$root_dir/libexec/emacs/$emacs_version/$target_triplet"
 export EMACSDOC="\$root_dir/share/emacs/$emacs_version/etc"
-export EMACSLOADPATH="\$root_dir/share/emacs/$emacs_version/lisp:"
+# Do not leave a trailing colon here. An empty EMACSLOADPATH element asks
+# Emacs to append its compiled-in default path, which points back to the
+# temporary Homebrew Cellar used to build the artifact.
+export EMACSLOADPATH="\$root_dir/share/emacs/$emacs_version/lisp"
 
 exec "\$root_dir/bin/emacs-$emacs_version" "\$@"
 EOF

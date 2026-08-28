@@ -11,7 +11,7 @@ on:
       artifact_revision:
         description: "Cask artifact revision for this source version"
         required: true
-        default: "1"
+        default: "2"
         type: string
 
 permissions:

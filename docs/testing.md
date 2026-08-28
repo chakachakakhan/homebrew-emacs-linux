@@ -91,7 +91,7 @@ Capture `M-x report-emacs-bug`'s build summary or evaluate
 | Direct dependency linkage | Same machine | Passed |
 | `brew audit --strict --formula` | Same machine | Passed |
 | Embedded compiler-shim path check | Same machine | No absolute Homebrew shim directory found in the installed keg |
-| Wayland GUI | Same machine, `XDG_SESSION_TYPE=wayland` | A real PGTK frame opened and exited cleanly; GTK printed a harmless missing `canberra-gtk-module` message requested by the host environment |
+| Wayland GUI | Same machine, `XDG_SESSION_TYPE=wayland` | A real PGTK frame opened and exited cleanly; GTK printed a harmless missing optional `canberra-gtk-module` message requested by the host environment |
 | `emacsclient` | Same machine | Connected to an isolated daemon and returned Emacs 31.1, native-comp available, and tree-sitter available |
 | Desktop artifacts | Same machine | Upstream desktop files and hicolor PNG/SVG icons are installed; application-menu discovery and opening a file remain interactive tests |
 | Uninstall/reinstall | Same machine | Uninstall removed the formula, linked executable, and linked desktop file; reinstall from `chakachakakhan/emacs-linux` passed and left Emacs installed |

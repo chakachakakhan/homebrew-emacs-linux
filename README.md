@@ -11,6 +11,9 @@ installation downloads a prepared build instead of compiling Emacs locally.
 
 Release: [`emacs-31.1-1`](https://github.com/chakachakakhan/homebrew-emacs-linux/releases/tag/emacs-31.1-1)
 
+The comma suffix in Homebrew's cask version is an artifact revision, not part
+of the GNU Emacs version. This release contains GNU Emacs 31.1.
+
 Broader Linux and desktop validation is still in progress. The source formula
 remains available for development and for environments where building locally
 is preferred.
@@ -38,8 +41,7 @@ build takes several minutes.
 
 ## Install the binary cask
 
-After the release assets and checksums have been reviewed, the cask will be
-installed with:
+Install the published binary cask with:
 
 ```bash
 brew tap chakachakakhan/emacs-linux
