@@ -14,8 +14,8 @@ architecture, command, and result when a row is actually run.
 - PNG, JPEG, GIF, TIFF, SVG, and WebP support can be loaded.
 
 The standalone CI runs the source build and smoke test on GitHub's x86-64 and
-ARM64 Ubuntu runners. A future experimental-tap PR will additionally run that
-repository's own `brew test-bot` workflow and produce bottle artifacts.
+ARM64 Ubuntu runners. A distribution-tap submission will additionally run the
+target tap's `brew test-bot` workflow and produce bottle artifacts.
 
 ## Cask artifact checks
 
@@ -50,8 +50,8 @@ the independent checksums are complete.
 - [x] `./scripts/check-local.sh`
 - [x] build with `./scripts/install-local.sh`
 - [x] `brew test local/emacs-linux/emacs-pgtk`
-- [x] `./scripts/smoke-test.sh "$(brew --prefix emacs-pgtk)/bin/emacs"`
-- [x] `brew linkage --test emacs-pgtk`
+- [x] `./scripts/smoke-test.sh "$(brew --prefix local/emacs-linux/emacs-pgtk)/bin/emacs"`
+- [x] `brew linkage --test local/emacs-linux/emacs-pgtk`
 - [ ] `emacs -nw` starts and exits normally
 - [x] `emacs` opens a PGTK frame on Wayland
 - [ ] clipboard copy/paste in both directions
@@ -77,8 +77,8 @@ Capture `M-x report-emacs-bug`'s build summary or evaluate
 |---|---|---|
 | Source and checksum | Official GNU Emacs 31.1 archive | SHA-256 matched `1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586` |
 | Personal tap discovery | Local Git remote tapped as `chakachakakhan/emacs-linux` | Passed; Homebrew 6 required and accepted explicit `brew trust --tap` |
-| Source build/install | Bluefin 20260824 (`dakota-nvidia-gaming`), x86-64, Homebrew 6.0.19 | Passed through `brew install emacs-pgtk`; 6,009 files, 290.8 MB, approximately 6 minutes |
 | Cask archive packaging | Same machine, x86-64 | Packaging and archive-structure checks passed; the final executable smoke test must be rerun after restoring the complete formula runtime dependency set |
+| Source build/install | Bluefin 20260824 (`dakota-nvidia-gaming`), x86-64, Homebrew 6.0.19 | Passed through `brew install emacs-pgtk`; 6,009 files, 290.8 MB, approximately 6 minutes |
 | Syntax and style | Same machine | Passed; ShellCheck was not installed and was explicitly skipped |
 | Formula test | Same machine | Passed |
 | Feature/native-compile smoke test | Same machine | Passed on GNU Emacs 31.1; created a real `.eln` file |
@@ -115,7 +115,7 @@ For PGTK-on-X11 compatibility, test with `GDK_BACKEND=x11`. Record it
 separately from the primary Wayland result because GNU documents limitations
 and recommends the ordinary GTK/X build for X11-only systems.
 
-## Formula experimental-tap gate
+## Formula distribution gate
 
 - [ ] local stage complete with recorded evidence (automated portion passed;
   interactive portion remains)

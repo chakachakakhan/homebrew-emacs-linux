@@ -1,10 +1,8 @@
-# Architecture decision
+# Build and packaging architecture
 
-## Decision
+This project uses two deliberately separate layers:
 
-Use two deliberately separate layers:
-
-1. `Formula/emacs-pgtk.rb` is the reproducible source-build recipe and the
+1. `Formula/emacs-pgtk.rb` is the reproducible source-build recipe and
    development fallback.
 2. `emacs-app-linux` is a binary cask backed by immutable release archives
    built from that recipe.
@@ -28,11 +26,11 @@ checksummed release archives
 emacs-app-linux cask
 ```
 
-The cask candidate is not copied into a tap until both architecture archives
-exist, their checksums are independently reviewed, and the archive contract
-has passed the portability tests in [`testing.md`](testing.md).
+The cask is not copied into a tap until both architecture archives exist, their
+checksums are independently reviewed, and the archive contract has passed the
+portability tests in [`testing.md`](testing.md).
 
-## Options considered
+## Packaging choices
 
 | Option | Decision | Reason |
 |---|---|---|
@@ -85,9 +83,9 @@ native-compilable Lisp. Tree-sitter provides the runtime parser library;
 language grammars remain user-installed libraries.
 
 The first artifact build uses Homebrew’s Linux toolchain, so the initial
-portability target is the standard Linux Homebrew prefix used by UBlue. An
-arbitrary-prefix and cross-distribution test remains a release gate; this is
-why the cask candidate is not yet an experimental-tap submission.
+portability target is the standard Linux Homebrew prefix used by the target
+Linux distributions. Arbitrary-prefix and cross-distribution tests remain
+release gates.
 
 ## Build configuration
 
@@ -115,11 +113,9 @@ The selected 31.1 configuration is:
 JSON is built into Emacs 31.1 and is tested through `json-serialize`; it is
 not passed as a configure option.
 
-## Why the old cask was not copied
+## Compatibility notes
 
-The existing UBlue cask is a useful packaging reference, but its launcher
-patches hardcode `/home/linuxbrew/.linuxbrew`, labels the artifact
-`fedora-latest`, copies `gschemas.compiled` into a user directory, and exposes
-the obsolete `ctags` executable. The candidate keeps its useful architecture,
-binary, manpage, desktop, icon, and livecheck shape while moving build
-ownership into this repository and avoiding those runtime hacks.
+The package uses standard Homebrew and XDG paths rather than a distribution-
+specific installation directory. It keeps the desktop, binary, manpage, icon,
+and livecheck behavior expected from a Linux cask while keeping build ownership
+and artifact provenance in this repository.
