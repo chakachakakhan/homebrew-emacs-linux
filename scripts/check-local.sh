@@ -13,6 +13,7 @@ bash -n \
   "$repo_root/scripts/install-local.sh" \
   "$repo_root/scripts/smoke-test.sh" \
   "$repo_root/scripts/package-cask-artifact.sh" \
+  "$repo_root/scripts/check-portable-x86-64.sh" \
   "$repo_root/scripts/update-cask-checksums.sh"
 
 echo "Checking Ruby syntax..."
@@ -45,6 +46,7 @@ if command -v shellcheck >/dev/null 2>&1; then
     "$repo_root/scripts/install-local.sh" \
     "$repo_root/scripts/smoke-test.sh" \
     "$repo_root/scripts/package-cask-artifact.sh" \
+    "$repo_root/scripts/check-portable-x86-64.sh" \
     "$repo_root/scripts/update-cask-checksums.sh"
 else
   echo "ShellCheck is not installed; skipped ShellCheck."

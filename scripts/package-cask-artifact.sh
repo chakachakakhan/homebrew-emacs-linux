@@ -11,6 +11,7 @@ source_url="$(sed -n 's/^[[:space:]]*url "\([^"]*\)"/\1/p' "$repo_root/Formula/e
 source_sha256="$(sed -n 's/^[[:space:]]*sha256 "\([0-9a-f]\{64\}\)"/\1/p' "$repo_root/Formula/emacs-pgtk.rb" | head -n 1)"
 build_commit="${GITHUB_SHA:-$(git -C "$repo_root" rev-parse HEAD)}"
 build_platform="${BUILD_PLATFORM:-$(uname -s)-$(uname -m)}"
+compiler_target="${HOMEBREW_ARCH:-native}"
 
 if [[ ! -d "$formula_prefix" ]]; then
   echo "Emacs formula prefix does not exist: $formula_prefix" >&2
@@ -130,6 +131,7 @@ cat > "$stage_dir/share/emacs-pgtk/BUILD-MANIFEST.json" <<EOF
   "artifact_revision": "$artifact_revision",
   "build_commit": "$build_commit",
   "build_platform": "$build_platform",
+  "compiler_target": "$compiler_target",
   "recipe": "Formula/emacs-pgtk.rb",
   "source": {
     "sha256": "$source_sha256",

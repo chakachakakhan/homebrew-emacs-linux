@@ -38,12 +38,15 @@ tar -xzf dist/emacs-pgtk-31.1-linux-x86_64.tar.gz -C /tmp
 Verify all of the following for each architecture:
 
 - `BUILD-MANIFEST.json` parses and names the official GNU source checksum;
+- `BUILD-MANIFEST.json` records the fixed compiler target selected for the
+  artifact;
 - the portable dumper image is present and the relative executable link works;
 - no Homebrew receipt or SBOM is included in the payload;
 - the launcher resolves its own archive path and preserves `XDG_DATA_DIRS`;
 - the archive contains the four desktop files, six application icons, command
   binaries, and man pages;
 - `readelf -d`/`ldd` show no missing runtime libraries;
+- the x86_64 executable passes `scripts/check-portable-x86-64.sh`;
 - the headless smoke test, native compilation, and GUI launch pass;
 - the archive works from a clean Caskroom path before publishing.
 
