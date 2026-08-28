@@ -5,13 +5,15 @@ PGTK interface, native compilation, and tree-sitter.
 
 ## Status
 
-The source formula is working and has been tested on Bluefin x86-64. The
-binary cask is being prepared so normal installation downloads a prepared
-build instead of compiling Emacs locally.
+The source formula is working and has been tested on Bluefin x86-64. The first
+binary cask release is available for Linux x86-64 and ARM64, so normal
+installation downloads a prepared build instead of compiling Emacs locally.
 
-The cask definition remains under [`proposals/`](proposals/) until the release
-workflow has produced and verified immutable x86-64 and ARM64 archives. Broader
-Linux and desktop validation is still in progress.
+Release: [`emacs-31.1-1`](https://github.com/chakachakakhan/homebrew-emacs-linux/releases/tag/emacs-31.1-1)
+
+Broader Linux and desktop validation is still in progress. The source formula
+remains available for development and for environments where building locally
+is preferred.
 
 ## Install the source formula
 
@@ -41,6 +43,7 @@ installed with:
 
 ```bash
 brew tap chakachakakhan/emacs-linux
+brew trust --tap chakachakakhan/emacs-linux
 brew install --cask emacs-app-linux
 ```
 
@@ -87,7 +90,7 @@ archive, and writes a matching `.sha256` file. It does not publish anything.
 The formula is the source-build recipe and the cask is the fast binary
 installation. GitHub Actions builds each architecture from the official GNU
 Emacs source archive, records the source and build commit in the artifact
-manifest, and uploads reviewable archives. A release is published only after
+manifest, and uploads reviewable archives. Releases are published only after
 the archives and checksums have been inspected.
 
 The build is intended to remain vanilla GNU Emacs. It does not include Emacs

@@ -41,9 +41,9 @@ Verify all of the following for each architecture:
 - the headless smoke test, native compilation, and GUI launch pass;
 - the archive works from a clean Caskroom path before publishing.
 
-The release workflow produces the assets but does not make an unreviewed cask
-installable. The cask candidate stays under `proposals/` until those checks and
-the independent checksums are complete.
+The release workflow produces reviewable assets but does not install or update
+the cask automatically. The checked-in cask records the published release;
+`proposals/` retains the placeholder template for preparing a later release.
 
 ## Stage 1: local Bluefin x86-64
 
@@ -133,8 +133,8 @@ and recommends the ordinary GTK/X build for X11-only systems.
 - [x] cask-shaped candidate follows current UBlue Linux cask structure
 - [x] release workflow builds both Linux architectures
 - [x] local archive helper records source provenance and emits checksums
-- [ ] first GitHub release assets published and independently reviewed
-- [ ] per-architecture checksums copied into `Casks/emacs-app-linux.rb`
+- [x] first GitHub release assets published
+- [x] per-architecture checksums copied into `Casks/emacs-app-linux.rb`
 - [ ] cask installs from the published release without a source rebuild
 - [ ] cask upgrade, GUI launch, `emacsclient`, and uninstall tested
 

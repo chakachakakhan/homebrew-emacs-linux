@@ -2,6 +2,10 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cask_files=("$repo_root/proposals/Casks/emacs-app-linux.rb.example")
+if [[ -f "$repo_root/Casks/emacs-app-linux.rb" ]]; then
+  cask_files+=("$repo_root/Casks/emacs-app-linux.rb")
+fi
 
 echo "Checking shell syntax..."
 bash -n \
@@ -14,10 +18,14 @@ bash -n \
 echo "Checking Ruby syntax..."
 if command -v ruby >/dev/null 2>&1; then
   ruby -c "$repo_root/Formula/emacs-pgtk.rb"
-  ruby -c "$repo_root/proposals/Casks/emacs-app-linux.rb.example"
+  for cask_file in "${cask_files[@]}"; do
+    ruby -c "$cask_file"
+  done
 elif command -v brew >/dev/null 2>&1; then
   brew ruby -- -c "$repo_root/Formula/emacs-pgtk.rb"
-  brew ruby -- -c "$repo_root/proposals/Casks/emacs-app-linux.rb.example"
+  for cask_file in "${cask_files[@]}"; do
+    brew ruby -- -c "$cask_file"
+  done
 else
   echo "Ruby and Homebrew are not installed; skipped Ruby syntax check."
 fi
