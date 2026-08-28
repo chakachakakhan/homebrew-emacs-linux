@@ -3,9 +3,9 @@ cask "emacs-app-linux" do
   arch arm: "arm64", intel: "x86_64"
 
   # The comma suffix is Homebrew's artifact revision, not an Emacs version.
-  version "31.1,2"
-  sha256 arm64_linux:  "4a95a987f1206dce98d92aacfa0b154671abd2179d9b32e5ed75929737deee62",
-         x86_64_linux: "4fc1ec7ec50b5bf0d04f8c1cc7f14926d7b1549dfb624fb10fc97f458010c8cb"
+  version "31.1,3"
+  sha256 arm64_linux:  "0608227decf6a108d80044cacc2b57c67d82d50febabefa73e2dca256659e805",
+         x86_64_linux: "24fa16052b28239ca6bebda144eacbc61d347293a7c75e62185fdd3e514775aa"
 
   archive_root = "emacs-pgtk-#{version.csv.first}-linux-#{arch}"
   xdg_data = ENV.fetch("XDG_DATA_HOME", "#{Dir.home}/.local/share")
